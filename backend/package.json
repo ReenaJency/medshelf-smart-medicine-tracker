@@ -1,0 +1,26 @@
+{
+  "name": "medshelf-backend",
+  "version": "1.0.0",
+  "description": "Full-Stack Backend API for MedShelf Smart Medicine Expiry Tracker",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "medshelf",
+    "medicine-tracker",
+    "inventory",
+    "nodejs",
+    "express",
+    "mysql"
+  ],
+  "author": "MedShelf Contributors",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mysql2": "^3.9.7"
+  }
+}

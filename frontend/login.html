@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sign in to MedShelf - Smart Medicine Expiry Tracker for Home Use.">
+  <title>Login | MedShelf Smart Medicine Tracker</title>
+  
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+
+  <main class="auth-container">
+    <div class="auth-card">
+      
+      <!-- Brand Identity -->
+      <div class="auth-brand">
+        <img src="assets/favicon.svg" alt="MedShelf Logo" class="brand-logo-img" width="52" height="52">
+        <h1 class="brand-title">Med<span class="accent">Shelf</span></h1>
+        <p class="brand-tagline">Smart Medicine Expiry Tracker</p>
+      </div>
+
+      <!-- Auth Form Header -->
+      <div class="auth-header">
+        <h2 class="auth-heading">Welcome Back</h2>
+        <p class="auth-subheading">Sign in to manage your household medicine inventory</p>
+      </div>
+
+      <!-- Flash / Validation Alert Box -->
+      <div id="auth-alert" class="alert-box" role="alert"></div>
+
+      <!-- Login Form -->
+      <form id="login-form" novalidate>
+        
+        <!-- Email Field -->
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address</label>
+          <div class="form-control-wrap">
+            <input 
+              type="email" 
+              id="email" 
+              class="form-input" 
+              placeholder="e.g. name@example.com" 
+              required 
+              autocomplete="email">
+          </div>
+          <span class="field-error" id="email-error"></span>
+        </div>
+
+        <!-- Password Field -->
+        <div class="form-group">
+          <div class="form-label">
+            <span>Password</span>
+            <a href="#" id="link-forgot-password" class="auth-link" style="font-size: 0.78rem;">Forgot password?</a>
+          </div>
+          <div class="form-control-wrap">
+            <input 
+              type="password" 
+              id="password" 
+              class="form-input" 
+              placeholder="Enter your password" 
+              required 
+              autocomplete="current-password">
+            <button type="button" class="btn-toggle-pwd" data-target="password" aria-label="Toggle password visibility">👁️</button>
+          </div>
+          <span class="field-error" id="password-error"></span>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="btn-submit-login" class="btn-submit">
+          <span>Sign In</span>
+        </button>
+
+      </form>
+
+      <!-- Quick Demo Login for Reviewers -->
+      <div class="demo-access-box">
+        <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.5rem;">For College Review & Fast Evaluation:</p>
+        <button type="button" id="btn-demo-login" class="btn-demo" title="Auto-fill and log into verified demo account">
+          <span>⚡</span> Try Demo Account (One-Click)
+        </button>
+      </div>
+
+      <!-- Footer Registration Link -->
+      <div class="auth-footer">
+        <p>Don't have an account? <a href="register.html" class="auth-link">Register New Account</a></p>
+        <p style="margin-top: 0.6rem; font-size: 0.8rem;">
+          <a href="../index.html" class="auth-link" style="color: #64748b;">🖥️ Open Standalone Browser Mode (Zero Backend Needed)</a>
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Forgot Password Modal -->
+  <div class="modal-overlay" id="forgot-modal" role="dialog" aria-modal="true" aria-labelledby="forgot-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="forgot-title" style="font-size: 1.15rem; font-weight: 700;">Reset Your Password</h3>
+        <button class="modal-close-btn" data-close-modal aria-label="Close dialog">&times;</button>
+      </div>
+      <form id="forgot-form">
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Enter your registered email address and choose a new password.
+        </p>
+        <div class="form-group">
+          <label for="reset-email" class="form-label">Email Address</label>
+          <input type="email" id="reset-email" class="form-input" placeholder="Registered email" required>
+        </div>
+        <div class="form-group">
+          <label for="reset-password" class="form-label">New Password</label>
+          <input type="password" id="reset-password" class="form-input" placeholder="Minimum 6 characters" required>
+        </div>
+        <div class="form-group">
+          <label for="reset-confirm" class="form-label">Confirm New Password</label>
+          <input type="password" id="reset-confirm" class="form-input" placeholder="Repeat new password" required>
+        </div>
+        <span id="reset-alert" style="display: block; font-size: 0.82rem; color: var(--danger-red); margin-bottom: 0.75rem;"></span>
+        <button type="submit" class="btn-submit">Reset Password</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

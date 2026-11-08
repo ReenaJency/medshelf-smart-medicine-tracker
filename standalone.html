@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MedShelf - Smart Medicine Expiry Tracker for Home Use. Manage family medicine inventory, monitor expiry dates, and receive automated safety alerts.">
+  <title>MedShelf | Smart Medicine Expiry Tracker</title>
+  
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Medical Safety Disclaimer Banner -->
+  <aside class="disclaimer-banner" role="complementary" aria-label="Medical Disclaimer">
+    <div class="container disclaimer-content">
+      <span class="disclaimer-icon" aria-hidden="true">⚠️</span>
+      <span>
+        <strong>Medical Disclaimer:</strong> MedShelf is an inventory and expiry date tracking tool for home use. It does <strong>not</strong> provide medical advice or dosage recommendations. Always consult a certified healthcare professional.
+      </span>
+    </div>
+  </aside>
+
+  <!-- Application Header & Top Navigation -->
+  <header class="app-header">
+    <div class="container nav-wrapper">
+      
+      <!-- Brand Identity -->
+      <a href="standalone.html" class="brand-group" aria-label="MedShelf Home">
+        <img src="assets/favicon.svg" alt="MedShelf Logo" class="brand-logo" width="40" height="40">
+        <div class="brand-text">
+          <h1>Med<span class="brand-highlight">Shelf</span></h1>
+          <span class="brand-subtitle">Smart Medicine Tracker</span>
+        </div>
+      </a>
+
+      <!-- Quick Header Actions -->
+      <div class="header-actions">
+        <!-- Reminders Bell with Dynamic Counter Badge -->
+        <button id="btn-open-reminders" class="btn btn-outline btn-icon" title="View Expiry Reminders & Alerts" aria-label="Reminders">
+          <span>🔔</span>
+          <span id="reminders-badge" class="notification-badge" style="display: none;">0</span>
+        </button>
+
+        <!-- Low-stock & Reminder Settings -->
+        <button id="btn-open-settings" class="btn btn-outline btn-icon" title="Configure Inventory Settings" aria-label="Settings">
+          <span>⚙️</span>
+        </button>
+
+        <!-- Switch to Full-Stack Node.js Portal -->
+        <a href="frontend/login.html" class="btn btn-outline btn-sm" title="Switch to Full-Stack Multi-User Mode (Node.js & Database)">
+          <span>👤 Full-Stack Portal</span>
+        </a>
+
+        <!-- Primary Add Medicine Button -->
+        <button id="btn-add-medicine" class="btn btn-primary">
+          <span>+ Add Medicine</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Application Body -->
+  <main class="main-content">
+    <div class="container">
+      
+      <!-- Section Header -->
+      <section class="section-header">
+        <div>
+          <h2 class="section-title">Household Medicine Cabinet</h2>
+          <p class="section-subtitle">Real-time expiry tracking, stock management & safety classification</p>
+        </div>
+      </section>
+
+      <!-- Dashboard KPI Statistics Grid (Interactive Filters) -->
+      <section class="dashboard-grid" aria-label="Dashboard Statistics">
+        
+        <!-- Total Medicines -->
+        <div class="stat-card stat-total card-selected" id="card-stat-total" title="Click to filter: View All Medicines">
+          <div class="stat-info">
+            <span class="stat-label">Total Medicines</span>
+            <span class="stat-number" id="stat-total">0</span>
+            <span class="stat-hint">All items cataloged</span>
+          </div>
+          <div class="stat-icon icon-total" aria-hidden="true">💊</div>
+        </div>
+
+        <!-- Safe Medicines -->
+        <div class="stat-card stat-safe" id="card-stat-safe" title="Click to filter: Safe (> 30 days remaining)">
+          <div class="stat-info">
+            <span class="stat-label">Safe to Use</span>
+            <span class="stat-number" id="stat-safe">0</span>
+            <span class="stat-hint">&gt; 30 days remaining</span>
+          </div>
+          <div class="stat-icon icon-safe" aria-hidden="true">🟢</div>
+        </div>
+
+        <!-- Expiring Soon -->
+        <div class="stat-card stat-expiring" id="card-stat-expiring" title="Click to filter: Expiring Soon (≤ 30 days)">
+          <div class="stat-info">
+            <span class="stat-label">Expiring Soon</span>
+            <span class="stat-number" id="stat-expiring">0</span>
+            <span class="stat-hint">&le; 30 days left</span>
+          </div>
+          <div class="stat-icon icon-expiring" aria-hidden="true">🟠</div>
+        </div>
+
+        <!-- Expired Medicines -->
+        <div class="stat-card stat-expired" id="card-stat-expired" title="Click to filter: Expired (Past date)">
+          <div class="stat-info">
+            <span class="stat-label">Expired</span>
+            <span class="stat-number" id="stat-expired">0</span>
+            <span class="stat-hint">Dispose safely</span>
+          </div>
+          <div class="stat-icon icon-expired" aria-hidden="true">🔴</div>
+        </div>
+
+        <!-- Low Stock Items -->
+        <div class="stat-card stat-lowstock" id="card-stat-lowstock" title="Click to filter: Low Stock (≤ threshold)">
+          <div class="stat-info">
+            <span class="stat-label">Low Stock</span>
+            <span class="stat-number" id="stat-lowstock">0</span>
+            <span class="stat-hint">Restock required</span>
+          </div>
+          <div class="stat-icon icon-lowstock" aria-hidden="true">⚠️</div>
+        </div>
+
+      </section>
+
+      <!-- Quick Action / Data Management Bar -->
+      <section class="data-tools-bar">
+        <span class="data-tools-label">Data Management & Quick Actions:</span>
+        <div class="data-tools-buttons">
+          <button id="btn-load-sample" class="btn btn-outline btn-sm" title="Load realistic sample medicines relative to current date">
+            ✨ Load Demo Data
+          </button>
+          <button id="btn-export-json" class="btn btn-outline btn-sm" title="Download entire shelf inventory as JSON file">
+            💾 Export JSON
+          </button>
+          <button id="btn-import-json" class="btn btn-outline btn-sm" title="Restore inventory from JSON backup">
+            📥 Import JSON
+          </button>
+          <input type="file" id="file-import-input" accept=".json" style="display: none;" aria-label="Upload JSON Backup">
+          <button id="btn-clear-all" class="btn btn-danger-outline btn-sm" title="Wipe all medicines from local storage">
+            🗑️ Clear Shelf
+          </button>
+        </div>
+      </section>
+
+      <!-- Control Toolbar: Search, Filters, Sorting, and View Modes -->
+      <section class="controls-toolbar" aria-label="Inventory Filters and Controls">
+        
+        <!-- Top Row: Substring Search & View Mode Switcher -->
+        <div class="controls-row-top">
+          <div class="search-wrapper">
+            <span class="search-icon" aria-hidden="true">🔍</span>
+            <input 
+              type="text" 
+              id="search-input" 
+              class="search-input" 
+              placeholder="Search by medicine name, category, family member, or notes..." 
+              autocomplete="off"
+              aria-label="Search medicines"
+            >
+          </div>
+
+          <div class="view-toggle-group" role="group" aria-label="View format">
+            <button id="btn-view-table" class="btn-toggle-view active" title="Switch to Table View">
+              📋 Table
+            </button>
+            <button id="btn-view-grid" class="btn-toggle-view" title="Switch to Grid Card View">
+              🗂️ Cards
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Row: Status, Family Member, Category & Sorting -->
+        <div class="controls-row-filters">
+          
+          <!-- Status Filter -->
+          <div class="filter-group">
+            <label for="filter-status" class="filter-label">Status:</label>
+            <select id="filter-status" class="form-select">
+              <option value="ALL">All Statuses</option>
+              <option value="SAFE">🟢 Safe Only (&gt; 30 Days)</option>
+              <option value="EXPIRING_SOON">🟠 Expiring Soon (≤ 30 Days)</option>
+              <option value="EXPIRED">🔴 Expired Only</option>
+              <option value="LOW_STOCK">⚠️ Low Stock (≤ 2)</option>
+            </select>
+          </div>
+
+          <!-- Family Member Filter (Dynamic) -->
+          <div class="filter-group">
+            <label for="filter-family" class="filter-label">Family Member:</label>
+            <select id="filter-family" class="form-select">
+              <option value="ALL">All Family Members</option>
+            </select>
+          </div>
+
+          <!-- Category Filter -->
+          <div class="filter-group">
+            <label for="filter-category" class="filter-label">Category:</label>
+            <select id="filter-category" class="form-select">
+              <option value="ALL">All Categories</option>
+              <option value="Pain & Fever">Pain & Fever</option>
+              <option value="Antibiotics">Antibiotics</option>
+              <option value="Cold & Allergy">Cold & Allergy</option>
+              <option value="First Aid & Antiseptic">First Aid & Antiseptic</option>
+              <option value="Digestive & Stomach">Digestive & Stomach</option>
+              <option value="Chronic Care">Chronic Care</option>
+              <option value="Vitamins & Supplements">Vitamins & Supplements</option>
+              <option value="Eye & Ear Drops">Eye & Ear Drops</option>
+              <option value="Skin & Ointments">Skin & Ointments</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <!-- Sort Selector -->
+          <div class="filter-group">
+            <label for="sort-by" class="filter-label">Sort By:</label>
+            <select id="sort-by" class="form-select">
+              <option value="expiry-asc">Expiry Date (Earliest First)</option>
+              <option value="expiry-desc">Expiry Date (Furthest First)</option>
+              <option value="name-asc">Medicine Name (A → Z)</option>
+              <option value="name-desc">Medicine Name (Z → A)</option>
+              <option value="qty-asc">Quantity (Lowest First)</option>
+              <option value="added-desc">Recently Added</option>
+            </select>
+          </div>
+
+          <!-- Reset All Filters -->
+          <button id="btn-reset-filters" class="btn btn-outline btn-sm" title="Clear search and all filter criteria">
+            🔄 Reset Filters
+          </button>
+          <span id="active-filter-badge" style="display: none;"></span>
+
+        </div>
+
+        <!-- Live Results Summary -->
+        <div class="results-summary-bar">
+          <span id="results-summary">Loading inventory...</span>
+        </div>
+
+      </section>
+
+      <!-- Inventory Display Section -->
+      <section id="inventory-section">
+        
+        <!-- View 1: Detailed Table View -->
+        <div id="medicine-table-view" class="table-container">
+          <table class="medicine-table">
+            <thead>
+              <tr>
+                <th scope="col" style="width: 28%;">Medicine & Category</th>
+                <th scope="col" style="width: 20%;">Expiry Date</th>
+                <th scope="col" style="width: 15%;">Safety Status</th>
+                <th scope="col" style="width: 14%;">Quantity</th>
+                <th scope="col" style="width: 11%;">Assigned To</th>
+                <th scope="col" style="width: 12%; text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="medicine-table-body">
+              <!-- Dynamically rendered by script.js -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- View 2: Responsive Grid Card View -->
+        <div id="medicine-grid-view" class="medicine-grid-container" style="display: none;">
+          <!-- Dynamically rendered by script.js -->
+        </div>
+
+        <!-- Empty State (When no medicines or no filter matches) -->
+        <div id="empty-state" class="empty-state" style="display: none;">
+          <!-- Rendered dynamically by script.js -->
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 1: ADD / EDIT MEDICINE                             -->
+  <!-- ======================================================== -->
+  <div id="medicine-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="medicine-modal-title">
+    <div class="modal-box modal-box-lg">
+      
+      <div class="modal-header">
+        <h3 id="medicine-modal-title">Add New Medicine</h3>
+        <button class="modal-close-btn" data-close-modal aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="medicine-form" novalidate>
+        <div class="modal-body">
+          <div class="form-grid">
+            
+            <!-- Medicine Name -->
+            <div class="form-group form-group-full">
+              <label for="med-name">Medicine Name <span class="required">*</span></label>
+              <input 
+                type="text" 
+                id="med-name" 
+                class="form-control" 
+                placeholder="e.g., Paracetamol 500mg, Amoxicillin, Cetirizine" 
+                required
+              >
+              <span class="field-error-message" id="med-name-error"></span>
+            </div>
+
+            <!-- Expiry Date Picker -->
+            <div class="form-group">
+              <label for="med-expiry">Expiration Date <span class="required">*</span></label>
+              <input 
+                type="date" 
+                id="med-expiry" 
+                class="form-control" 
+                required
+              >
+              <span class="field-error-message" id="med-expiry-error"></span>
+            </div>
+
+            <!-- Quantity -->
+            <div class="form-group">
+              <label for="med-quantity">Quantity in Stock <span class="required">*</span></label>
+              <input 
+                type="number" 
+                id="med-quantity" 
+                class="form-control" 
+                min="0" 
+                value="1" 
+                required
+              >
+              <span class="field-error-message" id="med-quantity-error"></span>
+            </div>
+
+            <!-- Family Member Assignment -->
+            <div class="form-group">
+              <label for="med-family">Family Member <span class="required">*</span></label>
+              <input 
+                type="text" 
+                id="med-family" 
+                class="form-control" 
+                list="family-members-datalist" 
+                placeholder="e.g., General / Shared, Mom, Grandpa" 
+                required
+              >
+              <datalist id="family-members-datalist">
+                <option value="General / Shared"></option>
+                <option value="Self"></option>
+                <option value="Mom"></option>
+                <option value="Dad"></option>
+                <option value="Grandpa"></option>
+                <option value="Grandma"></option>
+                <option value="Kids"></option>
+              </datalist>
+              <span class="field-error-message" id="med-family-error"></span>
+            </div>
+
+            <!-- Category -->
+            <div class="form-group">
+              <label for="med-category">Category</label>
+              <select id="med-category" class="form-control">
+                <option value="Pain & Fever">Pain & Fever</option>
+                <option value="Antibiotics">Antibiotics</option>
+                <option value="Cold & Allergy">Cold & Allergy</option>
+                <option value="First Aid & Antiseptic">First Aid & Antiseptic</option>
+                <option value="Digestive & Stomach">Digestive & Stomach</option>
+                <option value="Chronic Care">Chronic Care</option>
+                <option value="Vitamins & Supplements">Vitamins & Supplements</option>
+                <option value="Eye & Ear Drops">Eye & Ear Drops</option>
+                <option value="Skin & Ointments">Skin & Ointments</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <!-- Description & Storage Notes -->
+            <div class="form-group form-group-full">
+              <label for="med-description">Notes & Dosage Directions</label>
+              <textarea 
+                id="med-description" 
+                class="form-control" 
+                rows="3" 
+                placeholder="e.g., Take 1 tablet after meals; store below 25°C in dry place"
+              ></textarea>
+              <span class="form-hint">Optional: Record special instructions, doctor notes, or location inside medicine box.</span>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" data-close-modal>Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-medicine">Save Medicine</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 2: DELETE CONFIRMATION                             -->
+  <!-- ======================================================== -->
+  <div id="delete-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+    <div class="modal-box">
+      
+      <div class="modal-header">
+        <h3 id="delete-modal-title">Confirm Deletion</h3>
+        <button class="modal-close-btn" data-close-modal aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p style="margin-bottom: 0.75rem;">Are you sure you want to delete this medicine record?</p>
+        <div style="background-color: #fff1f2; border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 0.85rem; color: #991b1b;">
+          <strong>Medicine:</strong> <span id="delete-med-name">--</span>
+        </div>
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.75rem;">
+          This action will permanently remove the item from your home shelf inventory.
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" data-close-modal>Cancel</button>
+        <button type="button" class="btn btn-danger" id="btn-confirm-delete">Permanently Delete</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 3: NOTIFICATIONS & EXPIRY REMINDERS DRAWER         -->
+  <!-- ======================================================== -->
+  <div id="reminders-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="reminders-modal-title">
+    <div class="modal-box modal-box-lg">
+      
+      <div class="modal-header">
+        <h3 id="reminders-modal-title">🔔 Expiry Reminders & Alerts</h3>
+        <button class="modal-close-btn" data-close-modal aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="modal-body" id="reminders-body">
+        <!-- Rendered dynamically by js/reminders.js -->
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" data-close-modal>Close</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 4: INVENTORY SETTINGS                              -->
+  <!-- ======================================================== -->
+  <div id="settings-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+    <div class="modal-box">
+      
+      <div class="modal-header">
+        <h3 id="settings-modal-title">⚙️ Inventory Settings</h3>
+        <button class="modal-close-btn" data-close-modal aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="settings-form">
+        <div class="modal-body">
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label for="setting-low-stock-limit">Low Stock Alert Threshold (Units):</label>
+            <input 
+              type="number" 
+              id="setting-low-stock-limit" 
+              class="form-control" 
+              min="1" 
+              max="20" 
+              value="2" 
+              required
+            >
+            <span class="form-hint">Medicines with quantity equal to or below this count will trigger an orange Low Stock alert.</span>
+          </div>
+
+          <div style="background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.85rem; font-size: 0.82rem; color: var(--text-muted);">
+            <strong style="color: var(--text-main);">Expiry Classification Rules:</strong>
+            <ul style="margin-top: 0.4rem; padding-left: 1.2rem; line-height: 1.6;">
+              <li>🟢 <strong>Safe:</strong> More than 30 days remaining before expiration.</li>
+              <li>🟠 <strong>Expiring Soon:</strong> 30 days or fewer remaining.</li>
+              <li>🔴 <strong>Expired:</strong> Calendar date is in the past.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" data-close-modal>Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Settings</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- Toast Notifications Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Client-Side Scripts (Zero Backend Required) -->
+  <script src="js/storage.js"></script>
+  <script src="js/reminders.js"></script>
+  <script src="js/script.js"></script>
+
+</body>
+</html>
