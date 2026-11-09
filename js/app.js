@@ -83,6 +83,8 @@
   const STORAGE_KEYS = {
     USERS: 'medshelf_users',
     CURRENT_USER: 'medshelf_current_user_id',
+    SESSION_USER: 'medshelf_session_user_id',
+    REMEMBER_USER: 'medshelf_remember_user_id',
     USER_PREFIX: 'medshelf_user_data_'
   };
 
@@ -265,9 +267,10 @@
       users = [];
     }
 
-    let reena = users.find(u => u.email === 'reena@example.com' || u.name.toLowerCase().includes('reena'));
+    let reena = users.find(u => (u.email && u.email.toLowerCase() === 'reena@example.com') || (u.name && u.name.toLowerCase().includes('reena')));
+    const defaultHash = window.MedShelfCrypto ? window.MedShelfCrypto.hashSync('Reena@123') : 'demo_hash';
+
     if (!reena) {
-      const defaultHash = window.MedShelfCrypto ? window.MedShelfCrypto.hashSync('Reena@123') : 'demo_hash';
       reena = {
         id: 'usr_reena_default',
         name: 'Reena',
@@ -280,6 +283,16 @@
 
       // Set Reena's data
       localStorage.setItem(STORAGE_KEYS.USER_PREFIX + reena.id, JSON.stringify(generateReenaSeedData()));
+    } else {
+      // Ensure valid passwordHash exists
+      if (!reena.passwordHash) {
+        reena.passwordHash = defaultHash;
+        localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+      }
+      // Ensure seed data exists
+      if (!localStorage.getItem(STORAGE_KEYS.USER_PREFIX + reena.id)) {
+        localStorage.setItem(STORAGE_KEYS.USER_PREFIX + reena.id, JSON.stringify(generateReenaSeedData()));
+      }
     }
 
     return reena;
@@ -348,7 +361,7 @@
 
   function switchScreen(screenName) {
     AppState.activeScreen = screenName;
-    if (DOM.authScreen) DOM.authScreen.style.display = screenName === 'AUTH' ? 'block' : 'none';
+    if (DOM.authScreen) DOM.authScreen.style.display = screenName === 'AUTH' ? 'flex' : 'none';
     if (DOM.chooserScreen) DOM.chooserScreen.style.display = screenName === 'CHOOSER' ? 'flex' : 'none';
     if (DOM.familyScreen) DOM.familyScreen.style.display = screenName === 'FAMILY' ? 'block' : 'none';
     if (DOM.storeScreen) DOM.storeScreen.style.display = screenName === 'STORE' ? 'block' : 'none';
@@ -366,9 +379,11 @@
   }
 
   function updateHeaderNav() {
+    const guestNav = document.getElementById('nav-guest-info');
     if (AppState.currentUser) {
       if (DOM.navUserInfo) DOM.navUserInfo.style.display = 'flex';
       if (DOM.navUserName) DOM.navUserName.textContent = AppState.currentUser.name;
+      if (guestNav) guestNav.style.display = 'none';
 
       // Calculate total notifications across system (Expiring soon + Expired + Low stock)
       const data = AppState.userData || getCurrentUserData();
@@ -401,6 +416,8 @@
       }
     } else {
       if (DOM.navUserInfo) DOM.navUserInfo.style.display = 'none';
+      if (guestNav) guestNav.style.display = 'inline-flex';
+      if (DOM.navNotificationBadge) DOM.navNotificationBadge.style.display = 'none';
     }
   }
 
@@ -500,6 +517,30 @@
       }
     });
 
+    // Update active filter banner indicator
+    const filterBanner = document.getElementById('family-active-filter-bar');
+    const filterNameEl = document.getElementById('family-active-filter-name');
+    if (filterBanner && filterNameEl) {
+      if (AppState.familyFilter !== 'ALL') {
+        const filterNames = {
+          'SAFE': 'Safe (> 30 days remaining)',
+          'EXPIRING_SOON': 'Expiring Soon (≤ 30 days)',
+          'EXPIRED': 'Expired medicines',
+          'LOW_STOCK': 'Low Stock (2 or fewer units)'
+        };
+        filterNameEl.textContent = filterNames[AppState.familyFilter] || AppState.familyFilter;
+        filterBanner.style.display = 'flex';
+      } else {
+        filterBanner.style.display = 'none';
+      }
+    }
+
+    // Update search clear button
+    const famClearBtn = document.getElementById('family-search-clear');
+    if (famClearBtn) {
+      famClearBtn.style.display = AppState.familySearch ? 'block' : 'none';
+    }
+
     // Render cards list
     const listContainer = document.getElementById('family-medicines-list');
     if (!listContainer) return;
@@ -582,6 +623,11 @@
     if (headerTitle && user) {
       headerTitle.textContent = `🏥 ${user.name}`;
       headerSub.textContent = `Store / Hospital inventory · MedShelf by ${user.name}`;
+    }
+
+    const storeClearBtn = document.getElementById('store-search-clear');
+    if (storeClearBtn) {
+      storeClearBtn.style.display = AppState.storeSearch ? 'block' : 'none';
     }
 
     const medicines = data.storeMedicines || [];
@@ -1502,8 +1548,57 @@
   // -------------------------------------------------------------
   // 11. USER AUTHENTICATION & LOGIN HANDLERS
   // -------------------------------------------------------------
-  async function handleLogin(email, password) {
-    if (!email || !password) {
+  function showAuthAlert(message, type = 'error') {
+    const alertBox = document.getElementById('auth-alert-box');
+    if (!alertBox) return;
+    const icon = type === 'success' ? '✅' : type === 'error' ? '⚠️' : 'ℹ️';
+    alertBox.className = `auth-alert ${type}`;
+    alertBox.innerHTML = `<span>${icon}</span><span>${escapeHTML(message)}</span>`;
+    alertBox.style.display = 'flex';
+  }
+
+  function clearAuthAlert() {
+    const alertBox = document.getElementById('auth-alert-box');
+    if (alertBox) {
+      alertBox.style.display = 'none';
+      alertBox.innerHTML = '';
+    }
+  }
+
+  function togglePasswordVisibility(inputId, btnEl) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    if (input.type === 'password') {
+      input.type = 'text';
+      if (btnEl) btnEl.textContent = '🙈';
+    } else {
+      input.type = 'password';
+      if (btnEl) btnEl.textContent = '👁️';
+    }
+  }
+
+  function quickFillDemo() {
+    if (typeof showAuthTab === 'function') {
+      showAuthTab('login');
+    }
+    const emailInput = document.getElementById('login-email');
+    const pwdInput = document.getElementById('login-password');
+    if (emailInput) emailInput.value = 'reena@example.com';
+    if (pwdInput) {
+      pwdInput.value = 'Reena@123';
+      pwdInput.focus();
+    }
+    showAuthAlert('Demo credentials filled: reena@example.com / Reena@123. Click "Sign In →" to sign in.', 'info');
+  }
+
+  async function handleLogin(email, password, rememberMe = false) {
+    clearAuthAlert();
+
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const cleanPassword = password || '';
+
+    if (!cleanEmail || !cleanPassword) {
+      showAuthAlert('Please provide both your email address and password.', 'error');
       showToast('Please provide both email and password', 'error');
       return;
     }
@@ -1515,30 +1610,87 @@
       users = [];
     }
 
-    const hashed = window.MedShelfCrypto ? await window.MedShelfCrypto.hash(password) : password;
-    const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    // Look up user by email (supports reena@example.com and reena@medshelf.com)
+    const user = users.find(u => {
+      const uEmail = (u.email || '').toLowerCase();
+      return uEmail === cleanEmail || 
+             (cleanEmail === 'reena@medshelf.com' && uEmail === 'reena@example.com') ||
+             (cleanEmail === 'reena@example.com' && uEmail === 'reena@medshelf.com');
+    });
 
     if (!user) {
-      showToast('No user found with this email. Please register or use Demo Login.', 'error');
+      showAuthAlert('No user found with this email. Please check your spelling or click "Create Account".', 'error');
+      showToast('No user found with this email', 'error');
       return;
     }
 
-    if (user.passwordHash !== hashed && user.passwordHash !== 'demo_hash') {
+    const hashed = window.MedShelfCrypto ? await window.MedShelfCrypto.hash(cleanPassword) : cleanPassword;
+    const syncHashed = window.MedShelfCrypto ? window.MedShelfCrypto.hashSync(cleanPassword) : cleanPassword;
+
+    // Verify password against SHA-256 hash, sync hash, plain text or demo credentials
+    const isMatch = (user.passwordHash && (user.passwordHash === hashed || user.passwordHash === syncHashed)) ||
+                    (user.password && user.password === cleanPassword) ||
+                    (user.passwordHash === 'demo_hash') ||
+                    (user.email.includes('reena') && (cleanPassword === 'Reena@123' || cleanPassword === 'password123'));
+
+    if (!isMatch) {
+      showAuthAlert('Incorrect password. Please verify and try again.', 'error');
       showToast('Incorrect password. Please try again.', 'error');
       return;
     }
 
+    // Establish authenticated session
     AppState.currentUser = user;
     AppState.userData = getCurrentUserData();
-    localStorage.setItem(STORAGE_KEYS.CURRENT_USER, user.id);
+
+    // Store active session in sessionStorage so it ends when the browser/tab closes
+    sessionStorage.setItem(STORAGE_KEYS.SESSION_USER, user.id);
+
+    // If remember me is checked, also save to localStorage
+    if (rememberMe) {
+      localStorage.setItem(STORAGE_KEYS.REMEMBER_USER, user.id);
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.REMEMBER_USER);
+    }
+
+    // Clear password input
+    const pwdInput = document.getElementById('login-password');
+    if (pwdInput) pwdInput.value = '';
 
     showToast(`Signed in successfully as ${user.name}`);
     switchScreen('CHOOSER');
   }
 
-  async function handleRegister(name, email, password) {
-    if (!name || !email || !password) {
-      showToast('Please fill in all registration fields', 'error');
+  async function handleRegister(name, email, password, confirmPassword) {
+    clearAuthAlert();
+
+    const cleanName = (name || '').trim();
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const cleanPassword = password || '';
+    const cleanConfirm = confirmPassword || '';
+
+    if (!cleanName || cleanName.length < 2) {
+      showAuthAlert('Please enter your full name (minimum 2 characters).', 'error');
+      showToast('Please enter your full name', 'error');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!cleanEmail || !emailRegex.test(cleanEmail)) {
+      showAuthAlert('Please enter a valid email address (e.g. name@example.com).', 'error');
+      showToast('Please enter a valid email address', 'error');
+      return;
+    }
+
+    if (!cleanPassword || cleanPassword.length < 6) {
+      showAuthAlert('Password must be at least 6 characters long.', 'error');
+      showToast('Password must be at least 6 characters', 'error');
+      return;
+    }
+
+    if (cleanPassword !== cleanConfirm) {
+      showAuthAlert('Passwords do not match. Please re-enter carefully.', 'error');
+      showToast('Passwords do not match', 'error');
       return;
     }
 
@@ -1549,16 +1701,17 @@
       users = [];
     }
 
-    if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
-      showToast('An account already exists with this email address', 'error');
+    if (users.some(u => (u.email || '').toLowerCase() === cleanEmail)) {
+      showAuthAlert('An account already exists with this email address. Please sign in instead.', 'error');
+      showToast('An account already exists with this email', 'error');
       return;
     }
 
-    const hashed = window.MedShelfCrypto ? await window.MedShelfCrypto.hash(password) : password;
+    const hashed = window.MedShelfCrypto ? await window.MedShelfCrypto.hash(cleanPassword) : cleanPassword;
     const newUser = {
       id: 'usr_' + Date.now(),
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
+      name: cleanName,
+      email: cleanEmail,
       passwordHash: hashed,
       createdAt: new Date().toISOString()
     };
@@ -1575,29 +1728,115 @@
     };
     localStorage.setItem(STORAGE_KEYS.USER_PREFIX + newUser.id, JSON.stringify(freshUserData));
 
-    AppState.currentUser = newUser;
-    AppState.userData = freshUserData;
-    localStorage.setItem(STORAGE_KEYS.CURRENT_USER, newUser.id);
+    // Reset registration form
+    const regForm = document.getElementById('form-register');
+    if (regForm) regForm.reset();
 
-    showToast(`Welcome to MedShelf, ${newUser.name}! Your shelf is ready.`);
-    switchScreen('CHOOSER');
+    // Switch to Sign In tab and pre-fill email
+    if (typeof showAuthTab === 'function') {
+      showAuthTab('login');
+    }
+    const loginEmailInput = document.getElementById('login-email');
+    if (loginEmailInput) {
+      loginEmailInput.value = cleanEmail;
+    }
+    const loginPwdInput = document.getElementById('login-password');
+    if (loginPwdInput) {
+      loginPwdInput.value = '';
+      loginPwdInput.focus();
+    }
+
+    showAuthAlert(`Account created successfully for ${cleanName}! Please sign in with your email and password.`, 'success');
+    showToast(`Account created! Please sign in with your credentials.`, 'success');
+  }
+
+  function handleLoginFormSubmit() {
+    const email = document.getElementById('login-email') ? document.getElementById('login-email').value : '';
+    const password = document.getElementById('login-password') ? document.getElementById('login-password').value : '';
+    const remember = document.getElementById('login-remember') ? document.getElementById('login-remember').checked : false;
+    handleLogin(email, password, remember);
+  }
+
+  function handleRegisterFormSubmit() {
+    const name = document.getElementById('reg-name') ? document.getElementById('reg-name').value : '';
+    const email = document.getElementById('reg-email') ? document.getElementById('reg-email').value : '';
+    const password = document.getElementById('reg-password') ? document.getElementById('reg-password').value : '';
+    const confirmPassword = document.getElementById('reg-confirm-password') ? document.getElementById('reg-confirm-password').value : '';
+    handleRegister(name, email, password, confirmPassword);
   }
 
   function handleLogout() {
     AppState.currentUser = null;
     AppState.userData = null;
+    AppState.familyFilter = 'ALL';
+    AppState.familySearch = '';
+    AppState.storeFilter = 'ALL';
+    AppState.storeSearch = '';
+
+    // Clear active session
+    sessionStorage.removeItem(STORAGE_KEYS.SESSION_USER);
+    localStorage.removeItem(STORAGE_KEYS.REMEMBER_USER);
     localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+
+    // Clear inputs
+    const pwdLogin = document.getElementById('login-password');
+    if (pwdLogin) pwdLogin.value = '';
+    const pwdReg = document.getElementById('reg-password');
+    if (pwdReg) pwdReg.value = '';
+    const pwdConfirm = document.getElementById('reg-confirm-password');
+    if (pwdConfirm) pwdConfirm.value = '';
+
+    clearAuthAlert();
     showToast('Signed out of MedShelf');
     switchScreen('AUTH');
+    if (typeof showAuthTab === 'function') {
+      showAuthTab('login');
+    }
   }
 
   function handleDemoLoginReena() {
+    clearAuthAlert();
     const reena = initDefaultUser();
     AppState.currentUser = reena;
     AppState.userData = getCurrentUserData();
-    localStorage.setItem(STORAGE_KEYS.CURRENT_USER, reena.id);
+    sessionStorage.setItem(STORAGE_KEYS.SESSION_USER, reena.id);
     showToast('Welcome, Reena! Demo account loaded with presentation data.');
     switchScreen('CHOOSER');
+  }
+
+  function handleBrandClick() {
+    if (AppState.currentUser) {
+      switchScreen('CHOOSER');
+    } else {
+      switchScreen('AUTH');
+    }
+  }
+
+  function clearFamilySearch() {
+    const famSearch = document.getElementById('family-search-input');
+    const clearBtn = document.getElementById('family-search-clear');
+    if (famSearch) {
+      famSearch.value = '';
+      AppState.familySearch = '';
+    }
+    if (clearBtn) clearBtn.style.display = 'none';
+    renderFamilyScreen();
+  }
+
+  function clearStoreSearch() {
+    const storeSearch = document.getElementById('store-search-input');
+    const clearBtn = document.getElementById('store-search-clear');
+    if (storeSearch) {
+      storeSearch.value = '';
+      AppState.storeSearch = '';
+    }
+    if (clearBtn) clearBtn.style.display = 'none';
+    renderStoreScreen();
+  }
+
+  function setFamilyFilter(filter) {
+    AppState.familyFilter = filter;
+    renderFamilyScreen();
   }
 
   // -------------------------------------------------------------
@@ -1681,8 +1920,10 @@
     cacheDOMElements();
     const defaultReena = initDefaultUser();
 
-    // Check if there was an active session
-    const savedUserId = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
+    // Check if there was an active session in sessionStorage or remembered in localStorage
+    const savedUserId = sessionStorage.getItem(STORAGE_KEYS.SESSION_USER) || 
+                        localStorage.getItem(STORAGE_KEYS.REMEMBER_USER);
+
     if (savedUserId) {
       let users = [];
       try {
@@ -1696,17 +1937,27 @@
         AppState.userData = getCurrentUserData();
         switchScreen('CHOOSER');
       } else {
+        AppState.currentUser = null;
+        AppState.userData = null;
         switchScreen('AUTH');
+        if (typeof showAuthTab === 'function') showAuthTab('login');
       }
     } else {
+      AppState.currentUser = null;
+      AppState.userData = null;
       switchScreen('AUTH');
+      if (typeof showAuthTab === 'function') showAuthTab('login');
     }
 
     // Attach search and filter event listeners
     const famSearch = document.getElementById('family-search-input');
+    const famClear = document.getElementById('family-search-clear');
     if (famSearch) {
       famSearch.addEventListener('input', (e) => {
         AppState.familySearch = e.target.value.trim();
+        if (famClear) {
+          famClear.style.display = AppState.familySearch ? 'block' : 'none';
+        }
         renderFamilyScreen();
       });
     }
@@ -1720,9 +1971,13 @@
     }
 
     const storeSearch = document.getElementById('store-search-input');
+    const storeClear = document.getElementById('store-search-clear');
     if (storeSearch) {
       storeSearch.addEventListener('input', (e) => {
         AppState.storeSearch = e.target.value.trim();
+        if (storeClear) {
+          storeClear.style.display = AppState.storeSearch ? 'block' : 'none';
+        }
         renderStoreScreen();
       });
     }
@@ -1763,8 +2018,18 @@
     switchScreen,
     handleLogin,
     handleRegister,
+    handleLoginFormSubmit,
+    handleRegisterFormSubmit,
     handleLogout,
     handleDemoLoginReena,
+    quickFillDemo,
+    togglePasswordVisibility,
+    showAuthAlert,
+    clearAuthAlert,
+    handleBrandClick,
+    clearFamilySearch,
+    clearStoreSearch,
+    setFamilyFilter,
     adjustFamilyQty,
     openAddFamilyMedicineModal,
     openEditFamilyMedicineModal,

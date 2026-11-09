@@ -13,26 +13,30 @@
 
   <!-- Top Academic & Project Reference Banner (Slide 1 & Slide 9) -->
   <aside class="top-notice-banner" role="banner" aria-label="Academic Project Info">
-    <div>
-      <span class="academic-tag">CS25S01 MINI PROJECT</span>
-      <span>J. J. College of Engineering and Technology, Tiruchirappalli &bull; November 2026</span>
-    </div>
-    <div style="display: flex; gap: 0.75rem; align-items: center;">
-      <button type="button" onclick="window.MedShelfApp.openProjectCreditsModal()">
-        👥 Team &amp; Guide Info
-      </button>
-      <button type="button" onclick="window.MedShelfApp.openFutureEnhancementsModal()">
-        ✨ Future Features (Slide 8)
-      </button>
+    <div class="top-notice-inner">
+      <div class="top-notice-left">
+        <span class="academic-tag">CS25S01 MINI PROJECT</span>
+        <span>J. J. College of Engineering and Technology, Tiruchirappalli &bull; November 2026</span>
+      </div>
+      <div class="top-notice-right">
+        <button type="button" onclick="window.MedShelfApp.openProjectCreditsModal()">
+          👥 Team &amp; Guide Info
+        </button>
+        <button type="button" onclick="window.MedShelfApp.openFutureEnhancementsModal()">
+          ✨ Future Features (Slide 8)
+        </button>
+      </div>
     </div>
   </aside>
 
   <!-- Medical Safety Disclaimer Banner (Slide 9) -->
   <div class="disclaimer-bar" role="complementary" aria-label="Medical Disclaimer">
-    <span>⚠️</span>
-    <span>
-      <strong>Medical Disclaimer:</strong> MedShelf only helps to organise medicines. Please ask a pharmacist or doctor for medical advice.
-    </span>
+    <div class="disclaimer-inner">
+      <span>⚠️</span>
+      <span>
+        <strong>Medical Disclaimer:</strong> MedShelf only helps to organise medicines. Please ask a pharmacist or doctor for medical advice.
+      </span>
+    </div>
   </div>
 
   <!-- Primary Application Header Bar -->
@@ -40,7 +44,7 @@
     <div class="site-header-inner">
       
       <!-- Brand Logo & Identity (Capsule + Tablet Vector Icon) -->
-      <div class="brand-wrapper" onclick="window.MedShelfApp.switchScreen(window.MedShelfApp.currentUser ? 'CHOOSER' : 'AUTH')" title="MedShelf Home">
+      <div class="brand-wrapper" onclick="window.MedShelfApp.handleBrandClick()" title="MedShelf Home">
         <svg class="brand-icon-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
           <!-- Capsule Pill -->
           <rect x="10" y="20" width="34" height="60" rx="17" fill="#0f766e" />
@@ -58,6 +62,11 @@
 
       <!-- Quick Header Tools -->
       <div class="header-tools">
+        <!-- Logged-out Info Badge -->
+        <div id="nav-guest-info" class="guest-nav-pill">
+          <span>CS25S01 &bull; Smart Medicine Tracker</span>
+        </div>
+
         <!-- Notification Bell with Count -->
         <button class="btn btn-outline btn-icon" title="View safety & expiry notifications" onclick="window.MedShelfApp.openFutureEnhancementsModal()">
           <span>🔔</span>
@@ -66,9 +75,10 @@
 
         <!-- Logged-in User Info & Logout -->
         <div id="nav-user-info" style="display: none; align-items: center; gap: 0.5rem;">
-          <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">
-            👤 <span id="nav-user-name">User</span>
-          </span>
+          <div class="user-greeting-pill">
+            <span class="user-avatar-circle">👤</span>
+            <span id="nav-user-name">User</span>
+          </div>
           <button class="btn btn-outline btn-sm" onclick="window.MedShelfApp.switchScreen('CHOOSER')">
             Switch Mode
           </button>
@@ -91,7 +101,7 @@
       <div class="auth-card">
         
         <div class="auth-card-logo">
-          <svg width="42" height="42" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <svg width="44" height="44" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
             <rect x="10" y="20" width="34" height="60" rx="17" fill="#0f766e" />
             <path d="M10 50h34" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
             <circle cx="68" cy="50" r="24" fill="#0f766e" />
@@ -100,6 +110,9 @@
           <span class="auth-card-title">MedShelf</span>
         </div>
         <p class="auth-card-by">by Reena &bull; Smart Medicine Expiry Tracker</p>
+
+        <!-- Dynamic Inline Alert Container for Registration & Login Feedback -->
+        <div id="auth-alert-box" class="auth-alert" style="display: none;" role="alert"></div>
 
         <!-- Sign In vs Create Account Tabs -->
         <div class="auth-nav-tabs">
@@ -111,37 +124,84 @@
           </button>
         </div>
 
-        <!-- Login Form -->
-        <form id="form-login" onsubmit="event.preventDefault(); window.MedShelfApp.handleLogin(document.getElementById('login-email').value, document.getElementById('login-password').value);">
+        <!-- 1. Login Form -->
+        <form id="form-login" onsubmit="event.preventDefault(); window.MedShelfApp.handleLoginFormSubmit();">
           <div class="form-group">
             <label class="form-label" for="login-email">Email Address</label>
-            <input type="email" id="login-email" class="form-input" placeholder="e.g. reena@example.com" required autocomplete="email">
+            <div class="input-with-icon">
+              <span class="input-icon">✉️</span>
+              <input type="email" id="login-email" class="form-input" placeholder="e.g. reena@example.com" required autocomplete="email">
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label" for="login-password">Password</label>
-            <input type="password" id="login-password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+            <div class="password-input-wrap">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="login-password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+              <button type="button" class="btn-toggle-pwd" onclick="window.MedShelfApp.togglePasswordVisibility('login-password', this)" title="Show / Hide password">
+                👁️
+              </button>
+            </div>
           </div>
-          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 0.65rem;">
+          
+          <div class="form-row-auth">
+            <label class="form-checkbox-label">
+              <input type="checkbox" id="login-remember">
+              <span>Remember me on this device</span>
+            </label>
+            <button type="button" class="btn-link-demo" onclick="window.MedShelfApp.quickFillDemo()">
+              Fill demo credentials
+            </button>
+          </div>
+
+          <button type="submit" id="btn-login-submit" class="btn btn-primary btn-auth-submit">
             Sign In &rarr;
           </button>
         </form>
 
-        <!-- Register Form (Starts with 0 counts as per Slide 7 rules) -->
-        <form id="form-register" style="display: none;" onsubmit="event.preventDefault(); window.MedShelfApp.handleRegister(document.getElementById('reg-name').value, document.getElementById('reg-email').value, document.getElementById('reg-password').value);">
+        <!-- 2. Register Form (Starts with strict 0 counts as per Slide 7 rules) -->
+        <form id="form-register" style="display: none;" onsubmit="event.preventDefault(); window.MedShelfApp.handleRegisterFormSubmit();">
           <div class="form-group">
             <label class="form-label" for="reg-name">Your Full Name</label>
-            <input type="text" id="reg-name" class="form-input" placeholder="e.g. Reena Jency" required>
+            <div class="input-with-icon">
+              <span class="input-icon">👤</span>
+              <input type="text" id="reg-name" class="form-input" placeholder="e.g. Reena Jency" required autocomplete="name">
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label" for="reg-email">Email Address</label>
-            <input type="email" id="reg-email" class="form-input" placeholder="e.g. name@example.com" required autocomplete="email">
+            <div class="input-with-icon">
+              <span class="input-icon">✉️</span>
+              <input type="email" id="reg-email" class="form-input" placeholder="e.g. name@example.com" required autocomplete="email">
+            </div>
           </div>
           <div class="form-group">
-            <label class="form-label" for="reg-password">Create Password (SHA-256 Protected)</label>
-            <input type="password" id="reg-password" class="form-input" placeholder="••••••••" required autocomplete="new-password">
+            <label class="form-label" for="reg-password">Create Password (Min 6 characters)</label>
+            <div class="password-input-wrap">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="reg-password" class="form-input" placeholder="••••••••" required autocomplete="new-password" minlength="6">
+              <button type="button" class="btn-toggle-pwd" onclick="window.MedShelfApp.togglePasswordVisibility('reg-password', this)" title="Show / Hide password">
+                👁️
+              </button>
+            </div>
           </div>
-          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 0.65rem;">
-            Register Account &rarr;
+          <div class="form-group">
+            <label class="form-label" for="reg-confirm-password">Confirm Password</label>
+            <div class="password-input-wrap">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="reg-confirm-password" class="form-input" placeholder="••••••••" required autocomplete="new-password" minlength="6">
+              <button type="button" class="btn-toggle-pwd" onclick="window.MedShelfApp.togglePasswordVisibility('reg-confirm-password', this)" title="Show / Hide password">
+                👁️
+              </button>
+            </div>
+          </div>
+          
+          <div class="register-privacy-note">
+            🛡️ <strong>Private shelf:</strong> Your account will be initialized strictly with 0 items. Cryptographically protected with SHA-256.
+          </div>
+
+          <button type="submit" id="btn-register-submit" class="btn btn-primary btn-auth-submit">
+            Create Account &rarr;
           </button>
         </form>
 
@@ -149,9 +209,17 @@
         <div class="demo-login-box">
           <div class="demo-login-title">⚡ Presentation One-Click Demo Access</div>
           <div class="demo-login-desc">Test with Reena's pre-loaded project presentation dataset (Slide 6 &amp; Slide 7)</div>
-          <button type="button" class="btn btn-primary btn-sm btn-pill" onclick="window.MedShelfApp.handleDemoLoginReena()">
-            Sign In as Reena (Demo Data)
-          </button>
+          <div class="demo-credentials-badge">
+            <code>Email: reena@example.com &bull; Pass: Reena@123</code>
+          </div>
+          <div class="demo-actions-row">
+            <button type="button" class="btn btn-primary btn-sm btn-pill" onclick="window.MedShelfApp.handleDemoLoginReena()">
+              Sign In as Reena (Demo Data)
+            </button>
+            <button type="button" class="btn btn-outline btn-sm btn-pill" onclick="window.MedShelfApp.quickFillDemo()">
+              Fill Form Fields
+            </button>
+          </div>
         </div>
 
       </div>
@@ -164,10 +232,10 @@
       <div class="mode-chooser-container">
         
         <div class="mode-chooser-brand">
-          <span style="font-size: 2rem;">💊</span>
+          <span style="font-size: 2.2rem;">💊</span>
           <h1>MedShelf</h1>
         </div>
-        <p class="mode-chooser-by">by Reena</p>
+        <p class="mode-chooser-by">by Reena &bull; Smart Medicine Expiry Tracker</p>
 
         <h2 class="mode-welcome-heading" id="chooser-greeting">
           Welcome, <strong>Reena</strong>. How will you use MedShelf?
@@ -177,18 +245,24 @@
           <!-- Card 1: Family Mode (Slide 3) -->
           <div class="mode-card" onclick="window.MedShelfApp.switchScreen('FAMILY')">
             <div class="mode-card-icon">🏠</div>
-            <div>
-              <h3 class="mode-card-title">Family</h3>
-              <p class="mode-card-desc">Personal medicines, expiry dates, stock and reminders at home</p>
+            <div class="mode-card-body">
+              <div class="mode-card-header-row">
+                <h3 class="mode-card-title">Family Mode</h3>
+                <span class="mode-tag-pill mode-tag-family">Personal &amp; Home</span>
+              </div>
+              <p class="mode-card-desc">Personal medicines, expiry dates, stock counts and reminders at home.</p>
             </div>
           </div>
 
           <!-- Card 2: Store / Hospital Mode (Slide 3) -->
           <div class="mode-card" onclick="window.MedShelfApp.switchScreen('STORE')">
             <div class="mode-card-icon">🏥</div>
-            <div>
-              <h3 class="mode-card-title">Store / Hospital</h3>
-              <p class="mode-card-desc">Bulk inventory, batches, stock in and out, low-stock alerts</p>
+            <div class="mode-card-body">
+              <div class="mode-card-header-row">
+                <h3 class="mode-card-title">Store / Hospital Mode</h3>
+                <span class="mode-tag-pill mode-tag-store">Bulk Inventory</span>
+              </div>
+              <p class="mode-card-desc">Bulk inventory with units, batches, FEFO stock-in / stock-out, and low-stock alerts.</p>
             </div>
           </div>
         </div>
@@ -259,6 +333,7 @@
         <div class="search-input-wrap">
           <span class="search-icon-inside">🔍</span>
           <input type="text" id="family-search-input" class="form-input" placeholder="Search medicine or family member...">
+          <button type="button" id="family-search-clear" class="search-clear-btn" style="display: none;" onclick="window.MedShelfApp.clearFamilySearch()" title="Clear search">✕</button>
         </div>
 
         <select id="family-sort-select" class="form-select filter-select">
@@ -267,6 +342,12 @@
           <option value="name_asc">Name (A-Z)</option>
           <option value="qty_desc">Quantity (High to Low)</option>
         </select>
+      </div>
+
+      <!-- Active Filter Banner (Interactive) -->
+      <div id="family-active-filter-bar" class="active-filter-indicator" style="display: none;">
+        <span>Showing filtered by: <strong id="family-active-filter-name">SAFE</strong></span>
+        <button type="button" class="btn-clear-filter" onclick="window.MedShelfApp.setFamilyFilter('ALL')">Show all medicines ✕</button>
       </div>
 
       <!-- Medicine List Cards (Slide 6) -->
@@ -367,6 +448,7 @@
           <div class="search-input-wrap">
             <span class="search-icon-inside">🔍</span>
             <input type="text" id="store-search-input" class="form-input" placeholder="Search medicine, category or batch...">
+            <button type="button" id="store-search-clear" class="search-clear-btn" style="display: none;" onclick="window.MedShelfApp.clearStoreSearch()" title="Clear search">✕</button>
           </div>
 
           <select id="store-filter-select" class="form-select filter-select">
@@ -435,10 +517,17 @@
   <script>
     function showAuthTab(tab) {
       const isLogin = tab === 'login';
-      document.getElementById('form-login').style.display = isLogin ? 'block' : 'none';
-      document.getElementById('form-register').style.display = isLogin ? 'none' : 'block';
-      document.getElementById('tab-auth-login').classList.toggle('active', isLogin);
-      document.getElementById('tab-auth-register').classList.toggle('active', !isLogin);
+      const formLogin = document.getElementById('form-login');
+      const formRegister = document.getElementById('form-register');
+      const tabLogin = document.getElementById('tab-auth-login');
+      const tabRegister = document.getElementById('tab-auth-register');
+      if (formLogin) formLogin.style.display = isLogin ? 'block' : 'none';
+      if (formRegister) formRegister.style.display = isLogin ? 'none' : 'block';
+      if (tabLogin) tabLogin.classList.toggle('active', isLogin);
+      if (tabRegister) tabRegister.classList.toggle('active', !isLogin);
+      if (window.MedShelfApp && window.MedShelfApp.clearAuthAlert) {
+        window.MedShelfApp.clearAuthAlert();
+      }
     }
   </script>
 
