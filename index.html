@@ -3,506 +3,447 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="MedShelf - Smart Medicine Expiry Tracker for Home Use. Manage family medicine inventory, monitor expiry dates, and receive automated safety alerts.">
+  <meta name="description" content="MedShelf - Smart Medicine Expiry Tracker for Home & Clinic Use. CS25S01 Mini Project, J. J. College of Engineering and Technology.">
   <title>MedShelf | Smart Medicine Expiry Tracker</title>
   
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/medshelf.css">
 </head>
 <body>
 
-  <!-- Medical Safety Disclaimer Banner -->
-  <aside class="disclaimer-banner" role="complementary" aria-label="Medical Disclaimer">
-    <div class="container disclaimer-content">
-      <span class="disclaimer-icon" aria-hidden="true">⚠️</span>
-      <span>
-        <strong>Medical Disclaimer:</strong> MedShelf is an inventory and expiry date tracking tool for home use. It does <strong>not</strong> provide medical advice or dosage recommendations. Always consult a certified healthcare professional.
-      </span>
+  <!-- Top Academic & Project Reference Banner (Slide 1 & Slide 9) -->
+  <aside class="top-notice-banner" role="banner" aria-label="Academic Project Info">
+    <div>
+      <span class="academic-tag">CS25S01 MINI PROJECT</span>
+      <span>J. J. College of Engineering and Technology, Tiruchirappalli &bull; November 2026</span>
+    </div>
+    <div style="display: flex; gap: 0.75rem; align-items: center;">
+      <button type="button" onclick="window.MedShelfApp.openProjectCreditsModal()">
+        👥 Team &amp; Guide Info
+      </button>
+      <button type="button" onclick="window.MedShelfApp.openFutureEnhancementsModal()">
+        ✨ Future Features (Slide 8)
+      </button>
     </div>
   </aside>
 
-  <!-- Application Header & Top Navigation -->
-  <header class="app-header">
-    <div class="container nav-wrapper">
+  <!-- Medical Safety Disclaimer Banner (Slide 9) -->
+  <div class="disclaimer-bar" role="complementary" aria-label="Medical Disclaimer">
+    <span>⚠️</span>
+    <span>
+      <strong>Medical Disclaimer:</strong> MedShelf only helps to organise medicines. Please ask a pharmacist or doctor for medical advice.
+    </span>
+  </div>
+
+  <!-- Primary Application Header Bar -->
+  <header class="site-header">
+    <div class="site-header-inner">
       
-      <!-- Brand Identity -->
-      <a href="index.html" class="brand-group" aria-label="MedShelf Home">
-        <img src="assets/favicon.svg" alt="MedShelf Logo" class="brand-logo" width="40" height="40">
-        <div class="brand-text">
-          <h1>Med<span class="brand-highlight">Shelf</span></h1>
-          <span class="brand-subtitle">Smart Medicine Tracker</span>
+      <!-- Brand Logo & Identity (Capsule + Tablet Vector Icon) -->
+      <div class="brand-wrapper" onclick="window.MedShelfApp.switchScreen(window.MedShelfApp.currentUser ? 'CHOOSER' : 'AUTH')" title="MedShelf Home">
+        <svg class="brand-icon-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <!-- Capsule Pill -->
+          <rect x="10" y="20" width="34" height="60" rx="17" fill="#0f766e" />
+          <path d="M10 50h34" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
+          <path d="M27 28v14" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
+          <!-- Tablet / Round Pill -->
+          <circle cx="68" cy="50" r="24" fill="#0f766e" />
+          <line x1="51" y1="33" x2="85" y2="67" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
+        </svg>
+        <div>
+          <span class="brand-title">MedShelf</span>
+          <span class="brand-subtitle">Smart Medicine Expiry Tracker</span>
         </div>
-      </a>
+      </div>
 
-      <!-- Quick Header Actions -->
-      <div class="header-actions">
-        <!-- Reminders Bell with Dynamic Counter Badge -->
-        <button id="btn-open-reminders" class="btn btn-outline btn-icon" title="View Expiry Reminders & Alerts" aria-label="Reminders">
+      <!-- Quick Header Tools -->
+      <div class="header-tools">
+        <!-- Notification Bell with Count -->
+        <button class="btn btn-outline btn-icon" title="View safety & expiry notifications" onclick="window.MedShelfApp.openFutureEnhancementsModal()">
           <span>🔔</span>
-          <span id="reminders-badge" class="notification-badge" style="display: none;">0</span>
+          <span id="nav-notification-badge" class="badge-counter" style="display: none;">0</span>
         </button>
 
-        <!-- Low-stock & Reminder Settings -->
-        <button id="btn-open-settings" class="btn btn-outline btn-icon" title="Configure Inventory Settings" aria-label="Settings">
-          <span>⚙️</span>
-        </button>
-
-        <!-- Switch to Full-Stack Node.js Portal -->
-        <a href="frontend/login.html" class="btn btn-outline btn-sm" title="Switch to Full-Stack Multi-User Mode (Node.js & Database)">
-          <span>👤 Full-Stack Portal</span>
-        </a>
-
-        <!-- Primary Add Medicine Button -->
-        <button id="btn-add-medicine" class="btn btn-primary">
-          <span>+ Add Medicine</span>
-        </button>
+        <!-- Logged-in User Info & Logout -->
+        <div id="nav-user-info" style="display: none; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">
+            👤 <span id="nav-user-name">User</span>
+          </span>
+          <button class="btn btn-outline btn-sm" onclick="window.MedShelfApp.switchScreen('CHOOSER')">
+            Switch Mode
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="window.MedShelfApp.handleLogout()">
+            Log out
+          </button>
+        </div>
       </div>
 
     </div>
   </header>
 
-  <!-- Main Application Body -->
-  <main class="main-content">
-    <div class="container">
+  <!-- Main Application Workspace Container -->
+  <main class="app-container">
+
+    <!-- ========================================================
+         SCREEN 1: AUTHENTICATION (LOGIN & REGISTRATION)
+         ======================================================== -->
+    <section id="screen-auth" class="auth-wrapper" style="display: none;">
+      <div class="auth-card">
+        
+        <div class="auth-card-logo">
+          <svg width="42" height="42" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="20" width="34" height="60" rx="17" fill="#0f766e" />
+            <path d="M10 50h34" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
+            <circle cx="68" cy="50" r="24" fill="#0f766e" />
+            <line x1="51" y1="33" x2="85" y2="67" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
+          </svg>
+          <span class="auth-card-title">MedShelf</span>
+        </div>
+        <p class="auth-card-by">by Reena &bull; Smart Medicine Expiry Tracker</p>
+
+        <!-- Sign In vs Create Account Tabs -->
+        <div class="auth-nav-tabs">
+          <button type="button" id="tab-auth-login" class="auth-tab-btn active" onclick="showAuthTab('login')">
+            Sign In
+          </button>
+          <button type="button" id="tab-auth-register" class="auth-tab-btn" onclick="showAuthTab('register')">
+            Create Account
+          </button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="form-login" onsubmit="event.preventDefault(); window.MedShelfApp.handleLogin(document.getElementById('login-email').value, document.getElementById('login-password').value);">
+          <div class="form-group">
+            <label class="form-label" for="login-email">Email Address</label>
+            <input type="email" id="login-email" class="form-input" placeholder="e.g. reena@example.com" required autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="login-password">Password</label>
+            <input type="password" id="login-password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 0.65rem;">
+            Sign In &rarr;
+          </button>
+        </form>
+
+        <!-- Register Form (Starts with 0 counts as per Slide 7 rules) -->
+        <form id="form-register" style="display: none;" onsubmit="event.preventDefault(); window.MedShelfApp.handleRegister(document.getElementById('reg-name').value, document.getElementById('reg-email').value, document.getElementById('reg-password').value);">
+          <div class="form-group">
+            <label class="form-label" for="reg-name">Your Full Name</label>
+            <input type="text" id="reg-name" class="form-input" placeholder="e.g. Reena Jency" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-email">Email Address</label>
+            <input type="email" id="reg-email" class="form-input" placeholder="e.g. name@example.com" required autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-password">Create Password (SHA-256 Protected)</label>
+            <input type="password" id="reg-password" class="form-input" placeholder="••••••••" required autocomplete="new-password">
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 0.65rem;">
+            Register Account &rarr;
+          </button>
+        </form>
+
+        <!-- Quick 1-Click Demo Access for Reviewers & Presentation -->
+        <div class="demo-login-box">
+          <div class="demo-login-title">⚡ Presentation One-Click Demo Access</div>
+          <div class="demo-login-desc">Test with Reena's pre-loaded project presentation dataset (Slide 6 &amp; Slide 7)</div>
+          <button type="button" class="btn btn-primary btn-sm btn-pill" onclick="window.MedShelfApp.handleDemoLoginReena()">
+            Sign In as Reena (Demo Data)
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================
+         SCREEN 2: MODE CHOOSER (SLIDE 3)
+         ======================================================== -->
+    <section id="screen-chooser" class="mode-chooser-wrapper" style="display: none;">
+      <div class="mode-chooser-container">
+        
+        <div class="mode-chooser-brand">
+          <span style="font-size: 2rem;">💊</span>
+          <h1>MedShelf</h1>
+        </div>
+        <p class="mode-chooser-by">by Reena</p>
+
+        <h2 class="mode-welcome-heading" id="chooser-greeting">
+          Welcome, <strong>Reena</strong>. How will you use MedShelf?
+        </h2>
+
+        <div class="mode-cards-stack">
+          <!-- Card 1: Family Mode (Slide 3) -->
+          <div class="mode-card" onclick="window.MedShelfApp.switchScreen('FAMILY')">
+            <div class="mode-card-icon">🏠</div>
+            <div>
+              <h3 class="mode-card-title">Family</h3>
+              <p class="mode-card-desc">Personal medicines, expiry dates, stock and reminders at home</p>
+            </div>
+          </div>
+
+          <!-- Card 2: Store / Hospital Mode (Slide 3) -->
+          <div class="mode-card" onclick="window.MedShelfApp.switchScreen('STORE')">
+            <div class="mode-card-icon">🏥</div>
+            <div>
+              <h3 class="mode-card-title">Store / Hospital</h3>
+              <p class="mode-card-desc">Bulk inventory, batches, stock in and out, low-stock alerts</p>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-outline" onclick="window.MedShelfApp.handleLogout()">
+          Log out
+        </button>
+
+      </div>
+    </section>
+
+    <!-- ========================================================
+         SCREEN 3: FAMILY MODE (SLIDE 6)
+         ======================================================== -->
+    <section id="screen-family" style="display: none;">
       
-      <!-- Section Header -->
-      <section class="section-header">
-        <div>
-          <h2 class="section-title">Household Medicine Cabinet</h2>
-          <p class="section-subtitle">Real-time expiry tracking, stock management & safety classification</p>
+      <!-- View Header: Hello, Reena 👋 -->
+      <div class="view-header">
+        <div class="view-greeting">
+          <h2 id="family-greeting-name">Hello, Reena 👋</h2>
+          <p>Your private medicine shelf</p>
         </div>
-      </section>
+        <div class="view-actions">
+          <button class="btn btn-primary btn-pill" onclick="window.MedShelfApp.openAddFamilyMedicineModal()">
+            + Add medicine
+          </button>
+          <button class="btn btn-outline" onclick="window.MedShelfApp.switchScreen('CHOOSER')">
+            Switch mode
+          </button>
+          <button class="btn btn-outline" onclick="window.MedShelfApp.handleLogout()">
+            Log out
+          </button>
+        </div>
+      </div>
 
-      <!-- Dashboard KPI Statistics Grid (Interactive Filters) -->
-      <section class="dashboard-grid" aria-label="Dashboard Statistics">
+      <!-- 5 Live Metric Cards (Slide 6: Total, Safe, Expiring soon, Expired, Low stock) -->
+      <div class="stat-cards-5">
         
-        <!-- Total Medicines -->
-        <div class="stat-card stat-total card-selected" id="card-stat-total" title="Click to filter: View All Medicines">
-          <div class="stat-info">
-            <span class="stat-label">Total Medicines</span>
-            <span class="stat-number" id="stat-total">0</span>
-            <span class="stat-hint">All items cataloged</span>
-          </div>
-          <div class="stat-icon icon-total" aria-hidden="true">💊</div>
+        <div class="stat-card stat-card-total active-filter" data-filter="ALL" title="Tap to filter: View all medicines">
+          <span class="stat-card-label">TOTAL</span>
+          <span class="stat-card-number" id="family-stat-total">0</span>
         </div>
 
-        <!-- Safe Medicines -->
-        <div class="stat-card stat-safe" id="card-stat-safe" title="Click to filter: Safe (> 30 days remaining)">
-          <div class="stat-info">
-            <span class="stat-label">Safe to Use</span>
-            <span class="stat-number" id="stat-safe">0</span>
-            <span class="stat-hint">&gt; 30 days remaining</span>
-          </div>
-          <div class="stat-icon icon-safe" aria-hidden="true">🟢</div>
+        <div class="stat-card stat-card-safe" data-filter="SAFE" title="Tap to filter: Safe medicines (> 30 days left)">
+          <span class="stat-card-label">SAFE</span>
+          <span class="stat-card-number" id="family-stat-safe">0</span>
         </div>
 
-        <!-- Expiring Soon -->
-        <div class="stat-card stat-expiring" id="card-stat-expiring" title="Click to filter: Expiring Soon (≤ 30 days)">
-          <div class="stat-info">
-            <span class="stat-label">Expiring Soon</span>
-            <span class="stat-number" id="stat-expiring">0</span>
-            <span class="stat-hint">&le; 30 days left</span>
-          </div>
-          <div class="stat-icon icon-expiring" aria-hidden="true">🟠</div>
+        <div class="stat-card stat-card-expiring" data-filter="EXPIRING_SOON" title="Tap to filter: Expiring soon (≤ 30 days left)">
+          <span class="stat-card-label">EXPIRING SOON</span>
+          <span class="stat-card-number" id="family-stat-expiring">0</span>
         </div>
 
-        <!-- Expired Medicines -->
-        <div class="stat-card stat-expired" id="card-stat-expired" title="Click to filter: Expired (Past date)">
-          <div class="stat-info">
-            <span class="stat-label">Expired</span>
-            <span class="stat-number" id="stat-expired">0</span>
-            <span class="stat-hint">Dispose safely</span>
-          </div>
-          <div class="stat-icon icon-expired" aria-hidden="true">🔴</div>
+        <div class="stat-card stat-card-expired" data-filter="EXPIRED" title="Tap to filter: Expired medicines">
+          <span class="stat-card-label">EXPIRED</span>
+          <span class="stat-card-number" id="family-stat-expired">0</span>
         </div>
 
-        <!-- Low Stock Items -->
-        <div class="stat-card stat-lowstock" id="card-stat-lowstock" title="Click to filter: Low Stock (≤ threshold)">
-          <div class="stat-info">
-            <span class="stat-label">Low Stock</span>
-            <span class="stat-number" id="stat-lowstock">0</span>
-            <span class="stat-hint">Restock required</span>
-          </div>
-          <div class="stat-icon icon-lowstock" aria-hidden="true">⚠️</div>
+        <div class="stat-card stat-card-lowstock" data-filter="LOW_STOCK" title="Tap to filter: Low stock items (2 or fewer)">
+          <span class="stat-card-label">LOW STOCK</span>
+          <span class="stat-card-number" id="family-stat-lowstock">0</span>
         </div>
 
-      </section>
+      </div>
 
-      <!-- Quick Action / Data Management Bar -->
-      <section class="data-tools-bar">
-        <span class="data-tools-label">Data Management & Quick Actions:</span>
-        <div class="data-tools-buttons">
-          <button id="btn-load-sample" class="btn btn-outline btn-sm" title="Load realistic sample medicines relative to current date">
-            ✨ Load Demo Data
+      <!-- Search & Sort Row -->
+      <div class="filter-search-row">
+        <div class="search-input-wrap">
+          <span class="search-icon-inside">🔍</span>
+          <input type="text" id="family-search-input" class="form-input" placeholder="Search medicine or family member...">
+        </div>
+
+        <select id="family-sort-select" class="form-select filter-select">
+          <option value="expiry_soonest">Expiry soonest</option>
+          <option value="expiry_latest">Expiry latest</option>
+          <option value="name_asc">Name (A-Z)</option>
+          <option value="qty_desc">Quantity (High to Low)</option>
+        </select>
+      </div>
+
+      <!-- Medicine List Cards (Slide 6) -->
+      <div id="family-medicines-list" class="medicine-cards-list">
+        <!-- Rendered dynamically by js/app.js -->
+      </div>
+
+    </section>
+
+    <!-- ========================================================
+         SCREEN 4: STORE / HOSPITAL MODE (SLIDE 7)
+         ======================================================== -->
+    <section id="screen-store" style="display: none;">
+      
+      <!-- View Header: 🏥 Reena -->
+      <div class="view-header">
+        <div class="view-greeting">
+          <h2 id="store-user-title">🏥 Reena</h2>
+          <p id="store-user-sub">Store / Hospital inventory &bull; MedShelf by Reena</p>
+        </div>
+        <div class="view-actions">
+          <button class="btn btn-primary btn-pill" onclick="window.MedShelfApp.openAddStoreMedicineModal()">
+            + Add medicine
           </button>
-          <button id="btn-export-json" class="btn btn-outline btn-sm" title="Download entire shelf inventory as JSON file">
-            💾 Export JSON
+          <button class="btn btn-outline" onclick="window.MedShelfApp.switchScreen('CHOOSER')">
+            Switch mode
           </button>
-          <button id="btn-import-json" class="btn btn-outline btn-sm" title="Restore inventory from JSON backup">
-            📥 Import JSON
-          </button>
-          <input type="file" id="file-import-input" accept=".json" style="display: none;" aria-label="Upload JSON Backup">
-          <button id="btn-clear-all" class="btn btn-danger-outline btn-sm" title="Wipe all medicines from local storage">
-            🗑️ Clear Shelf
+          <button class="btn btn-outline" onclick="window.MedShelfApp.handleLogout()">
+            Log out
           </button>
         </div>
-      </section>
+      </div>
 
-      <!-- Control Toolbar: Search, Filters, Sorting, and View Modes -->
-      <section class="controls-toolbar" aria-label="Inventory Filters and Controls">
+      <!-- 7 Live Metric Cards (Slide 7) -->
+      <div class="stat-cards-7">
         
-        <!-- Top Row: Substring Search & View Mode Switcher -->
-        <div class="controls-row-top">
-          <div class="search-wrapper">
-            <span class="search-icon" aria-hidden="true">🔍</span>
-            <input 
-              type="text" 
-              id="search-input" 
-              class="search-input" 
-              placeholder="Search by medicine name, category, family member, or notes..." 
-              autocomplete="off"
-              aria-label="Search medicines"
-            >
-          </div>
-
-          <div class="view-toggle-group" role="group" aria-label="View format">
-            <button id="btn-view-table" class="btn-toggle-view active" title="Switch to Table View">
-              📋 Table
-            </button>
-            <button id="btn-view-grid" class="btn-toggle-view" title="Switch to Grid Card View">
-              🗂️ Cards
-            </button>
-          </div>
+        <div class="stat-card stat-card-total">
+          <span class="stat-card-label">MEDICINES</span>
+          <span class="stat-card-number" id="store-stat-medicines">0</span>
         </div>
 
-        <!-- Filter Row: Status, Family Member, Category & Sorting -->
-        <div class="controls-row-filters">
-          
-          <!-- Status Filter -->
-          <div class="filter-group">
-            <label for="filter-status" class="filter-label">Status:</label>
-            <select id="filter-status" class="form-select">
-              <option value="ALL">All Statuses</option>
-              <option value="SAFE">🟢 Safe Only (&gt; 30 Days)</option>
-              <option value="EXPIRING_SOON">🟠 Expiring Soon (≤ 30 Days)</option>
-              <option value="EXPIRED">🔴 Expired Only</option>
-              <option value="LOW_STOCK">⚠️ Low Stock (≤ 2)</option>
-            </select>
-          </div>
-
-          <!-- Family Member Filter (Dynamic) -->
-          <div class="filter-group">
-            <label for="filter-family" class="filter-label">Family Member:</label>
-            <select id="filter-family" class="form-select">
-              <option value="ALL">All Family Members</option>
-            </select>
-          </div>
-
-          <!-- Category Filter -->
-          <div class="filter-group">
-            <label for="filter-category" class="filter-label">Category:</label>
-            <select id="filter-category" class="form-select">
-              <option value="ALL">All Categories</option>
-              <option value="Pain & Fever">Pain & Fever</option>
-              <option value="Antibiotics">Antibiotics</option>
-              <option value="Cold & Allergy">Cold & Allergy</option>
-              <option value="First Aid & Antiseptic">First Aid & Antiseptic</option>
-              <option value="Digestive & Stomach">Digestive & Stomach</option>
-              <option value="Chronic Care">Chronic Care</option>
-              <option value="Vitamins & Supplements">Vitamins & Supplements</option>
-              <option value="Eye & Ear Drops">Eye & Ear Drops</option>
-              <option value="Skin & Ointments">Skin & Ointments</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-
-          <!-- Sort Selector -->
-          <div class="filter-group">
-            <label for="sort-by" class="filter-label">Sort By:</label>
-            <select id="sort-by" class="form-select">
-              <option value="expiry-asc">Expiry Date (Earliest First)</option>
-              <option value="expiry-desc">Expiry Date (Furthest First)</option>
-              <option value="name-asc">Medicine Name (A → Z)</option>
-              <option value="name-desc">Medicine Name (Z → A)</option>
-              <option value="qty-asc">Quantity (Lowest First)</option>
-              <option value="added-desc">Recently Added</option>
-            </select>
-          </div>
-
-          <!-- Reset All Filters -->
-          <button id="btn-reset-filters" class="btn btn-outline btn-sm" title="Clear search and all filter criteria">
-            🔄 Reset Filters
-          </button>
-          <span id="active-filter-badge" style="display: none;"></span>
-
+        <div class="stat-card stat-card-total">
+          <span class="stat-card-label">TOTAL UNITS</span>
+          <span class="stat-card-number" id="store-stat-units">0</span>
         </div>
 
-        <!-- Live Results Summary -->
-        <div class="results-summary-bar">
-          <span id="results-summary">Loading inventory...</span>
+        <div class="stat-card stat-card-safe">
+          <span class="stat-card-label">IN STOCK</span>
+          <span class="stat-card-number" id="store-stat-instock">0</span>
         </div>
 
-      </section>
+        <div class="stat-card stat-card-lowstock">
+          <span class="stat-card-label">LOW STOCK</span>
+          <span class="stat-card-number" id="store-stat-lowstock">0</span>
+        </div>
 
-      <!-- Inventory Display Section -->
-      <section id="inventory-section">
+        <div class="stat-card stat-card-outstock">
+          <span class="stat-card-label">OUT OF STOCK</span>
+          <span class="stat-card-number" id="store-stat-outstock">0</span>
+        </div>
+
+        <div class="stat-card stat-card-expiring">
+          <span class="stat-card-label">EXPIRING &le;30D (BATCHES)</span>
+          <span class="stat-card-number" id="store-stat-expiringbatches">0</span>
+        </div>
+
+        <div class="stat-card stat-card-expired">
+          <span class="stat-card-label">EXPIRED (BATCHES)</span>
+          <span class="stat-card-number" id="store-stat-expiredbatches">0</span>
+        </div>
+
+      </div>
+
+      <!-- Alerts Panel (Slide 7: ⚠️ Alerts (4)) -->
+      <div id="store-alerts-panel" class="alerts-panel" style="display: none;">
+        <div class="alerts-panel-header" id="store-alerts-title">
+          ⚠️ Alerts (0)
+        </div>
+        <ul id="store-alerts-list" class="alerts-list">
+          <!-- Rendered dynamically -->
+        </ul>
+      </div>
+
+      <!-- Mode Tabs: [Inventory] | [Stock activity] (Slide 7) -->
+      <div class="mode-nav-tabs">
+        <button type="button" id="tab-btn-inventory" class="mode-tab-pill active" onclick="window.MedShelfApp.setStoreTab('INVENTORY')">
+          Inventory
+        </button>
+        <button type="button" id="tab-btn-activity" class="mode-tab-pill" onclick="window.MedShelfApp.setStoreTab('ACTIVITY')">
+          Stock activity
+        </button>
+      </div>
+
+      <!-- Tab 1: Inventory Table -->
+      <div id="store-inventory-section">
         
-        <!-- View 1: Detailed Table View -->
-        <div id="medicine-table-view" class="table-container">
-          <table class="medicine-table">
+        <div class="filter-search-row">
+          <div class="search-input-wrap">
+            <span class="search-icon-inside">🔍</span>
+            <input type="text" id="store-search-input" class="form-input" placeholder="Search medicine, category or batch...">
+          </div>
+
+          <select id="store-filter-select" class="form-select filter-select">
+            <option value="ALL">All medicines</option>
+            <option value="IN_STOCK">In stock</option>
+            <option value="LOW_STOCK">Low stock (below reorder level)</option>
+            <option value="OUT_OF_STOCK">Out of stock (0 units)</option>
+            <option value="EXPIRING_BATCH">Expiring batches (&le;30 days)</option>
+            <option value="EXPIRED_BATCH">Expired batches</option>
+          </select>
+        </div>
+
+        <div class="table-responsive">
+          <table class="inventory-table">
             <thead>
               <tr>
-                <th scope="col" style="width: 28%;">Medicine & Category</th>
-                <th scope="col" style="width: 20%;">Expiry Date</th>
-                <th scope="col" style="width: 15%;">Safety Status</th>
-                <th scope="col" style="width: 14%;">Quantity</th>
-                <th scope="col" style="width: 11%;">Assigned To</th>
-                <th scope="col" style="width: 12%; text-align: right;">Actions</th>
+                <th>MEDICINE</th>
+                <th>STOCK</th>
+                <th>STATUS</th>
+                <th>BATCHES (EARLIEST EXPIRY FIRST)</th>
+                <th>ACTIONS</th>
               </tr>
             </thead>
-            <tbody id="medicine-table-body">
-              <!-- Dynamically rendered by script.js -->
+            <tbody id="store-inventory-tbody">
+              <!-- Rendered dynamically -->
             </tbody>
           </table>
         </div>
 
-        <!-- View 2: Responsive Grid Card View -->
-        <div id="medicine-grid-view" class="medicine-grid-container" style="display: none;">
-          <!-- Dynamically rendered by script.js -->
+      </div>
+
+      <!-- Tab 2: Stock Activity Log -->
+      <div id="store-activity-section" style="display: none;">
+        <div class="table-responsive">
+          <table class="inventory-table">
+            <thead>
+              <tr>
+                <th>DATE &amp; TIME</th>
+                <th>MEDICINE</th>
+                <th>MOVEMENT</th>
+                <th>QUANTITY</th>
+                <th>BATCH LOT</th>
+                <th>SUPPLIER / REASON</th>
+              </tr>
+            </thead>
+            <tbody id="store-activity-tbody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
         </div>
+      </div>
 
-        <!-- Empty State (When no medicines or no filter matches) -->
-        <div id="empty-state" class="empty-state" style="display: none;">
-          <!-- Rendered dynamically by script.js -->
-        </div>
+    </section>
 
-      </section>
-
-    </div>
   </main>
 
-  <!-- ======================================================== -->
-  <!-- MODAL 1: ADD / EDIT MEDICINE                             -->
-  <!-- ======================================================== -->
-  <div id="medicine-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="medicine-modal-title">
-    <div class="modal-box modal-box-lg">
-      
-      <div class="modal-header">
-        <h3 id="medicine-modal-title">Add New Medicine</h3>
-        <button class="modal-close-btn" data-close-modal aria-label="Close modal">&times;</button>
-      </div>
-
-      <form id="medicine-form" novalidate>
-        <div class="modal-body">
-          <div class="form-grid">
-            
-            <!-- Medicine Name -->
-            <div class="form-group form-group-full">
-              <label for="med-name">Medicine Name <span class="required">*</span></label>
-              <input 
-                type="text" 
-                id="med-name" 
-                class="form-control" 
-                placeholder="e.g., Paracetamol 500mg, Amoxicillin, Cetirizine" 
-                required
-              >
-              <span class="field-error-message" id="med-name-error"></span>
-            </div>
-
-            <!-- Expiry Date Picker -->
-            <div class="form-group">
-              <label for="med-expiry">Expiration Date <span class="required">*</span></label>
-              <input 
-                type="date" 
-                id="med-expiry" 
-                class="form-control" 
-                required
-              >
-              <span class="field-error-message" id="med-expiry-error"></span>
-            </div>
-
-            <!-- Quantity -->
-            <div class="form-group">
-              <label for="med-quantity">Quantity in Stock <span class="required">*</span></label>
-              <input 
-                type="number" 
-                id="med-quantity" 
-                class="form-control" 
-                min="0" 
-                value="1" 
-                required
-              >
-              <span class="field-error-message" id="med-quantity-error"></span>
-            </div>
-
-            <!-- Family Member Assignment -->
-            <div class="form-group">
-              <label for="med-family">Family Member <span class="required">*</span></label>
-              <input 
-                type="text" 
-                id="med-family" 
-                class="form-control" 
-                list="family-members-datalist" 
-                placeholder="e.g., General / Shared, Mom, Grandpa" 
-                required
-              >
-              <datalist id="family-members-datalist">
-                <option value="General / Shared"></option>
-                <option value="Self"></option>
-                <option value="Mom"></option>
-                <option value="Dad"></option>
-                <option value="Grandpa"></option>
-                <option value="Grandma"></option>
-                <option value="Kids"></option>
-              </datalist>
-              <span class="field-error-message" id="med-family-error"></span>
-            </div>
-
-            <!-- Category -->
-            <div class="form-group">
-              <label for="med-category">Category</label>
-              <select id="med-category" class="form-control">
-                <option value="Pain & Fever">Pain & Fever</option>
-                <option value="Antibiotics">Antibiotics</option>
-                <option value="Cold & Allergy">Cold & Allergy</option>
-                <option value="First Aid & Antiseptic">First Aid & Antiseptic</option>
-                <option value="Digestive & Stomach">Digestive & Stomach</option>
-                <option value="Chronic Care">Chronic Care</option>
-                <option value="Vitamins & Supplements">Vitamins & Supplements</option>
-                <option value="Eye & Ear Drops">Eye & Ear Drops</option>
-                <option value="Skin & Ointments">Skin & Ointments</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-
-            <!-- Description & Storage Notes -->
-            <div class="form-group form-group-full">
-              <label for="med-description">Notes & Dosage Directions</label>
-              <textarea 
-                id="med-description" 
-                class="form-control" 
-                rows="3" 
-                placeholder="e.g., Take 1 tablet after meals; store below 25°C in dry place"
-              ></textarea>
-              <span class="form-hint">Optional: Record special instructions, doctor notes, or location inside medicine box.</span>
-            </div>
-
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline" data-close-modal>Cancel</button>
-          <button type="submit" class="btn btn-primary" id="btn-save-medicine">Save Medicine</button>
-        </div>
-      </form>
-
-    </div>
+  <!-- Global Modal Dialog Backdrop -->
+  <div id="app-modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div id="app-modal-container" class="modal-dialog"></div>
   </div>
 
-  <!-- ======================================================== -->
-  <!-- MODAL 2: DELETE CONFIRMATION                             -->
-  <!-- ======================================================== -->
-  <div id="delete-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
-    <div class="modal-box">
-      
-      <div class="modal-header">
-        <h3 id="delete-modal-title">Confirm Deletion</h3>
-        <button class="modal-close-btn" data-close-modal aria-label="Close modal">&times;</button>
-      </div>
-
-      <div class="modal-body">
-        <p style="margin-bottom: 0.75rem;">Are you sure you want to delete this medicine record?</p>
-        <div style="background-color: #fff1f2; border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 0.85rem; color: #991b1b;">
-          <strong>Medicine:</strong> <span id="delete-med-name">--</span>
-        </div>
-        <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.75rem;">
-          This action will permanently remove the item from your home shelf inventory.
-        </p>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline" data-close-modal>Cancel</button>
-        <button type="button" class="btn btn-danger" id="btn-confirm-delete">Permanently Delete</button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ======================================================== -->
-  <!-- MODAL 3: NOTIFICATIONS & EXPIRY REMINDERS DRAWER         -->
-  <!-- ======================================================== -->
-  <div id="reminders-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="reminders-modal-title">
-    <div class="modal-box modal-box-lg">
-      
-      <div class="modal-header">
-        <h3 id="reminders-modal-title">🔔 Expiry Reminders & Alerts</h3>
-        <button class="modal-close-btn" data-close-modal aria-label="Close modal">&times;</button>
-      </div>
-
-      <div class="modal-body" id="reminders-body">
-        <!-- Rendered dynamically by js/reminders.js -->
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline" data-close-modal>Close</button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ======================================================== -->
-  <!-- MODAL 4: INVENTORY SETTINGS                              -->
-  <!-- ======================================================== -->
-  <div id="settings-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
-    <div class="modal-box">
-      
-      <div class="modal-header">
-        <h3 id="settings-modal-title">⚙️ Inventory Settings</h3>
-        <button class="modal-close-btn" data-close-modal aria-label="Close modal">&times;</button>
-      </div>
-
-      <form id="settings-form">
-        <div class="modal-body">
-          <div class="form-group" style="margin-bottom: 1.25rem;">
-            <label for="setting-low-stock-limit">Low Stock Alert Threshold (Units):</label>
-            <input 
-              type="number" 
-              id="setting-low-stock-limit" 
-              class="form-control" 
-              min="1" 
-              max="20" 
-              value="2" 
-              required
-            >
-            <span class="form-hint">Medicines with quantity equal to or below this count will trigger an orange Low Stock alert.</span>
-          </div>
-
-          <div style="background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.85rem; font-size: 0.82rem; color: var(--text-muted);">
-            <strong style="color: var(--text-main);">Expiry Classification Rules:</strong>
-            <ul style="margin-top: 0.4rem; padding-left: 1.2rem; line-height: 1.6;">
-              <li>🟢 <strong>Safe:</strong> More than 30 days remaining before expiration.</li>
-              <li>🟠 <strong>Expiring Soon:</strong> 30 days or fewer remaining.</li>
-              <li>🔴 <strong>Expired:</strong> Calendar date is in the past.</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline" data-close-modal>Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Settings</button>
-        </div>
-      </form>
-
-    </div>
-  </div>
-
-  <!-- Toast Notifications Container -->
+  <!-- Toast Feedback Messages Container -->
   <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
-  <!-- Client-Side Scripts (Zero Backend Required) -->
-  <script src="js/storage.js"></script>
-  <script src="js/reminders.js"></script>
-  <script src="js/script.js"></script>
+  <!-- Inline Tab Switcher for Auth Form -->
+  <script>
+    function showAuthTab(tab) {
+      const isLogin = tab === 'login';
+      document.getElementById('form-login').style.display = isLogin ? 'block' : 'none';
+      document.getElementById('form-register').style.display = isLogin ? 'none' : 'block';
+      document.getElementById('tab-auth-login').classList.toggle('active', isLogin);
+      document.getElementById('tab-auth-register').classList.toggle('active', !isLogin);
+    }
+  </script>
 
+  <!-- Application Scripts -->
+  <script src="js/sha256.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

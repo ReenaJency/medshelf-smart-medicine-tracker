@@ -1,185 +1,150 @@
-# 💊 MedShelf: Smart Medicine Expiry Tracker for Home Use
-### Full-Stack Web Application (Node.js &bull; Express.js &bull; MySQL &bull; HTML5/CSS3/JavaScript)
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Backend: Node.js](https://img.shields.io/badge/Backend-Node.js%20%7C%20Express-059669.svg)](#)
-[![Database: MySQL](https://img.shields.io/badge/Database-MySQL%208.0-0d9488.svg)](#)
-[![Authentication: JWT](https://img.shields.io/badge/Auth-JWT%20%2B%20PBKDF2-blue.svg)](#)
-[![Academic Level](https://img.shields.io/badge/Academic-B.Tech%20Mini--Project-green.svg)](#)
-
-> **A full-stack, multi-user medicine inventory and expiry tracking system engineered for domestic households. Features secure user authentication, dynamic mathematical expiry classification, multi-tenant user isolation, relational database storage, and a clean healthcare design system.**
+# MedShelf: Smart Medicine Expiry Tracker
+### Mini Project | CS25S01 Skill Development Course I
+**Department of Computer Science and Engineering &bull; J. J. College of Engineering and Technology, Tiruchirappalli**  
+*November 2026*
 
 ---
 
-## 📌 Project Overview
+## 👥 Project Team & Academic Credentials
 
-Household medicine boxes frequently accumulate expired drugs, mix up medications between family members, or run out of critical supplies during midnight emergencies.
+| Team Member | Register / Roll Number | Department |
+| :--- | :--- | :--- |
+| **Reena Jency V** | 811325104172 | CSE |
+| **Reshma A** | 811325104173 | CSE |
+| **Nisha K** | 811325104144 | CSE |
+| **Poojasri S** | 811325104152 | CSE |
 
-**MedShelf** provides a complete full-stack digital solution:
-1. **User Authentication:** Registered users sign in securely using salted PBKDF2 password hashes and JWT tokens.
-2. **Dashboard Analytics:** For new accounts, all dashboard counters start strictly at **0**. As medicines are logged, counters update dynamically from the database.
-3. **Dynamic Expiry Classification:** Medicines are evaluated against the current calendar date:
-   - 🟢 **Safe:** $> 30$ days remaining (Green)
-   - 🟠 **Expiring Soon:** $\le 30$ days remaining (Orange)
-   - 🔴 **Expired:** Date is in the past (Red)
-4. **Strict User Isolation:** Every user's shelf is private. User A can never view, edit, or delete User B's medicines.
-5. **Low Stock Alerts:** Quantities $\le 2$ trigger automatic warnings.
-6. **Family Categorization:** Medicines are tagged per family member (e.g., Grandpa, Mom, Kids).
+**Project Guide:** Mrs. T. Keerthana Jerine, M.E., Assistant Professor, Department of Computer Science and Engineering
 
 ---
 
-## 🗂️ Project Directory Structure
+## 🔗 How to Open & Run the Application
 
+MedShelf is built according to **Slide 5** of the project requirements using:
+- **HTML5:** Semantic pages & forms
+- **CSS3:** Fully responsive layout for Phone, Tablet, and Desktop
+- **JavaScript (ES6+):** All application and calculation logic
+- **localStorage:** Private client-side data isolation per user
+- **SHA-256:** Cryptographic client-side password hashing
+
+Because it has **zero external database dependencies** and requires **no background server installations**, it runs on **ALL systems** (Windows, macOS, Linux, Android, iOS, Chrome, Edge, Firefox, Safari).
+
+### 🚀 Option 1: Direct Browser Link (Instant Open)
+Open this link directly in your browser:
 ```
-medshelf-smart-medicine-tracker/
-│
-├── frontend/                   # Client-Side Presentation Tier
-│   ├── index.html              # Smart auth router (redirects to login or dashboard)
-│   ├── login.html              # Professional login portal with demo access
-│   ├── register.html           # User registration with password confirmation
-│   ├── dashboard.html          # Executive dashboard with live database counters
-│   ├── medicines.html          # Full inventory management (table, cards, filters)
-│   ├── css/
-│   │   ├── auth.css            # Styles for Login & Registration
-│   │   └── dashboard.css       # Green healthcare theme for Dashboard & Inventory
-│   ├── js/
-│   │   ├── api.js              # Centralized API client & JWT session manager
-│   │   ├── auth.js             # Client-side login, register, & password reset
-│   │   ├── dashboard.js        # Live dashboard statistics & greeting controller
-│   │   ├── medicines.js        # Full CRUD, search, filter, sort, +/- stock controller
-│   │   └── reminders.js        # 60, 30, 7 day reminders & Web Notifications API
-│   └── assets/
-│       └── favicon.svg         # Emerald green vector medical logo
-│
-├── backend/                    # Server & Business Logic Tier
-│   ├── server.js               # Express & Native HTTP server entry point
-│   ├── package.json            # Node.js dependencies & scripts
-│   ├── test-suite.js           # Automated 15-test verification suite
-│   ├── config/
-│   │   └── db.js               # MySQL pool with automated local fallback
-│   ├── middleware/
-│   │   └── auth.js             # PBKDF2 password hashing & JWT auth middleware
-│   ├── routes/
-│   │   ├── auth.routes.js      # /api/auth endpoints (register, login, me, reset)
-│   │   ├── medicines.routes.js # /api/medicines CRUD endpoints
-│   │   └── dashboard.routes.js # /api/dashboard/stats live counter endpoints
-│   └── controllers/
-│       ├── auth.controller.js
-│       ├── medicines.controller.js
-│       └── dashboard.controller.js
-│
-├── database/                   # Data Tier
-│   └── schema.sql              # MySQL DDL (users and medicines tables with FK)
-│
-├── docs/                       # Comprehensive Academic Documentation
-│   ├── PROJECT_REPORT.md       # 16-Section Academic Project Report
-│   ├── PRESENTATION_SLIDES.md  # 12-Slide PowerPoint Presentation Outline
-│   ├── VIVA_QUESTIONS.md       # 35+ Full-Stack Viva Q&As
-│   ├── SCREENSHOTS_GUIDE.md    # Step-by-Step Screenshot Capturing Guide
-│   └── DEPLOYMENT_GUIDE.md     # Full-Stack Deployment Guide (Render, MySQL, Netlify)
-│
-├── .env.example                # Environment variables template
-├── run-medshelf.bat            # 1-Click Windows execution script
-└── README.md                   # Project documentation
+file:///C:/Users/reena/OneDrive/Documents/GitHub/medshelf-smart-medicine-tracker/index.html
 ```
+*(Or simply double-click `index.html` in the folder).*
 
----
-
-## ⚡ Quickstart: Running the Application
-
-MedShelf provides **two complete modes of execution** to fit any environment or demonstration context:
-
-### 🌟 Mode 1: Instant Standalone Browser Mode (Zero Setup Required)
-*Directly replicates the interactive client-side experience of the Claude reference artifact:*
-1. Simply double-click **`index.html`** (or **`standalone.html`**) in the project root directory.
-2. The application opens directly in Google Chrome or Microsoft Edge with zero server dependencies.
-3. Features localStorage persistence, live color-coded status badges, real-time search & filters, quantity adjusters, reminder alerts, and JSON export/import.
-
-### 🚀 Mode 2: Full-Stack Multi-User Mode (Node.js & Database Backend)
-*For complete multi-user authentication, JWT sessions, and isolated relational database storage:*
-1. **One-Click Run (Windows):** Double-click **`run-medshelf.bat`** in the project root.
-2. The script boots the Node.js / Express backend server on port 5000 and automatically launches `http://localhost:5000` in your default browser.
-3. Sign in using the **Try Demo Account** button or register a new household profile.
-
-#### Terminal Execution:
-```bash
-# Start backend server
-node backend/server.js
-# Or with Antigravity Node:
-agy-node backend/server.js
+### ⚡ Option 2: Windows Batch Launcher
+Double-click:
+```bat
+run-medshelf.bat
 ```
+This automatically launches your system's default web browser directly to the MedShelf portal.
+
+### 🌐 Option 3: Deploy to GitHub Pages (Shareable to Mobile & Any PC)
+To share this application link with professors, teammates, or on a mobile phone without sending files:
+1. Push this repository to GitHub: `https://github.com/ReenaJency/medshelf-smart-medicine-tracker`
+2. In GitHub, go to **Settings &rarr; Pages &rarr; Branch: `main` &rarr; Save**.
+3. Your live link will be:
+   ```
+   https://reenajency.github.io/medshelf-smart-medicine-tracker/
+   ```
 
 ---
 
-## 🧪 Automated Testing & Verification
+## 🎯 Problem & Project Goals (Slide 2)
 
-MedShelf includes an automated test runner executing 15 unit and integration tests covering authentication, database queries, zero-count initialization, and multi-user isolation:
+### The Problem:
+1. **Expiry dates are small and easy to miss:** Printed dates on blister packs and bottles are difficult to read and fade over time.
+2. **Expired medicines are found too late:** Often discovered during emergency situations when someone is sick.
+3. **Stock runs out without warning:** Critical daily medications run out without advance notice.
+4. **Paper lists and memory are not reliable:** Hand-written notes are lost and not kept up-to-date.
 
-```bash
-# Run test suite
-node backend/test-suite.js
-```
-
-### Test Results:
-```
-============================================================
- STARTING MEDSHELF AUTOMATED VERIFICATION TEST SUITE
-============================================================
-
- ✅ PASS: 1. User Registration with Valid Data
- ✅ PASS: 2. Duplicate Email Registration Prevention
- ✅ PASS: 3. Login with Correct Credentials
- ✅ PASS: 4. Login with Incorrect Password (Security Rejection)
- ✅ PASS: 5. New User Dashboard Displays All 0 Counts
- ✅ PASS: 6. Add Safe Medicine (> 30 Days)
- ✅ PASS: 7. Add Expiring Soon Medicine (<= 30 Days)
- ✅ PASS: 8. Add Expired Medicine (< Today)
- ✅ PASS: 9. Low-Stock Detection (Qty <= 2)
- ✅ PASS: 10. Dashboard Counters Update Dynamically from Database
- ✅ PASS: 11. Edit Medicine Record
- ✅ PASS: 12. Fast Stock Adjustment (+/-)
- ✅ PASS: 13. Strict User Isolation (User 2 Cannot See or Edit User 1 Records)
- ✅ PASS: 14. Delete Medicine by Authorized Owner
- ✅ PASS: 15. Password Security (Never Stored in Plain Text)
-
-============================================================
- TEST SUMMARY: 15 PASSED | 0 FAILED
-============================================================
-```
+### Our Goals:
+- **Private login for every user** with cryptographic SHA-256 password security.
+- **Automatic Safe, Expiring Soon, and Expired status** computed in real-time.
+- **Live counters and low-stock alerts** that refresh immediately on any change.
+- **Dual Operating Modes:**
+  - 🏠 **Family Mode:** Personal medicines, expiry dates, stock, and family member tags.
+  - 🏥 **Store / Hospital Mode:** Bulk stock with units, batch-wise tracking, FEFO stock out, alerts, and stock activity logs.
+- **Works on phone and desktop** seamlessly.
 
 ---
 
-## 🚀 Cloud Deployment Guide
+## 🔄 Dual Operating Modes (Slide 3)
 
-A full-stack application requires hosting both the frontend and backend with a cloud database:
+After logging in, users are greeted with the **Mode Chooser**:
+- 🏠 **Family:** Personal medicines, expiry dates, stock and reminders at home.
+- 🏥 **Store / Hospital:** Bulk inventory, batches, stock in and out, low-stock alerts.
 
-1. **Cloud Database:** Create a free MySQL database on [Aiven.io](https://aiven.io) or [Clever-Cloud.com](https://www.clever-cloud.com) and execute `database/schema.sql`.
-2. **Backend Server:** Deploy the Node.js server to [Render.com](https://render.com) or Railway, setting your database environment variables (`DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `JWT_SECRET`).
-3. **Frontend:** Deploy the `frontend/` folder to [Netlify](https://app.netlify.com) or Vercel.
-
-*For complete step-by-step commands and Git instructions, refer to [`docs/DEPLOYMENT_GUIDE.md`](docs/DEPLOYMENT_GUIDE.md).*
+Users can switch between modes at any time using the **Switch mode** button in the top navigation.
 
 ---
 
-## 📚 Academic Deliverables Index
+## 🧮 How Status Is Decided (Slide 5)
 
-* 📄 [**Academic Project Report (`docs/PROJECT_REPORT.md`)**](docs/PROJECT_REPORT.md): 16-section formal mini-project report with SRS, architecture diagrams, DFDs, ER diagrams, pseudocode, and security specifications.
-* 📊 [**Presentation Slides Outline (`docs/PRESENTATION_SLIDES.md`)**](docs/PRESENTATION_SLIDES.md): 12 PowerPoint slides with slide layouts and spoken notes.
-* 💬 [**Viva Questions & Answers (`docs/VIVA_QUESTIONS.md`)**](docs/VIVA_QUESTIONS.md): 35+ questions on JWT, PBKDF2 hashing, user isolation, foreign keys, and REST APIs.
-* 📸 [**Screenshots Guide (`docs/SCREENSHOTS_GUIDE.md`)**](docs/SCREENSHOTS_GUIDE.md): 11 annotated screenshot checkpoints for the project report.
-* 🚀 [**Deployment Guide (`docs/DEPLOYMENT_GUIDE.md`)**](docs/DEPLOYMENT_GUIDE.md): Instructions for local VS Code testing, GitHub, Render, MySQL, and Netlify.
+Expiry status is calculated mathematically from the calendar date at midnight:
+$$\Delta d = \text{round}\left(\frac{\text{Expiry Date} - \text{Today's Date}}{86,400,000}\right)$$
 
----
+| Status | Mathematical Condition | Text Label & Badge | Example |
+| :--- | :--- | :--- | :--- |
+| **Safe** | $\Delta d > 30\text{ days}$ | `[Safe]` (Green) | `120 days left` |
+| **Expiring Soon** | $0 \le \Delta d \le 30\text{ days}$ | `[Expiring soon]` (Orange) | `in 15 days` (0 days = `expires today`) |
+| **Expired** | $\Delta d < 0\text{ days}$ | `[Expired]` (Red) | `expired 10 days ago` |
 
-## ⚠️ Medical Safety & Ethical Disclaimer
-
-> **IMPORTANT:** MedShelf is exclusively an **inventory tracking and expiry date monitoring tool**.
-> - It does **NOT** provide medical advice, diagnosis, or clinical dosage guidelines.
-> - It does **NOT** suggest that expired medicines are safe to consume.
-> - Users must always consult a certified doctor or licensed pharmacist for healthcare decisions.
+*Every status displays an explicit human-readable text label, not only a colour.*
 
 ---
 
-## 📄 License
+## 🏠 Family Mode (Slide 6)
+- **Greeting & Private Shelf:** Displays `Hello, {Name} 👋` and user's private records.
+- **5 Live Cards:**
+  1. `TOTAL` (Teal border)
+  2. `SAFE` (Green border)
+  3. `EXPIRING SOON` (Orange border)
+  4. `EXPIRED` (Red border)
+  5. `LOW STOCK` (Purple border)
+- **Interactive Card Filter:** Tap any card to immediately filter the medicine list.
+- **Search & Sort:** Search by medicine name, category, or family member (Dad, Mom, Kids, Grandpa).
+- **One-Click Quantity Adjustment:** `[-]` and `[+]` buttons update quantity in real-time.
+- **Low-Stock Warning Tag:** Medicines with quantity $\le 2$ automatically display the purple `[Low stock]` badge.
 
-This project is licensed under the [MIT License](LICENSE) — free for academic, personal, and educational use.
+---
+
+## 🏥 Store / Hospital Mode (Slide 7)
+- **7 Live Metric Cards:**
+  1. `MEDICINES`
+  2. `TOTAL UNITS`
+  3. `IN STOCK`
+  4. `LOW STOCK`
+  5. `OUT OF STOCK`
+  6. `EXPIRING ≤30D (BATCHES)`
+  7. `EXPIRED (BATCHES)`
+- **⚠️ Actionable Alerts Panel:**
+  - 🟣 Medicine low stock alert with current units vs reorder threshold.
+  - 🟠 Batch expiring within 30 days.
+  - ⚫ Out of stock alert (0 units remaining).
+  - 🔴 Expired batch alert prompting removal from shelf.
+- **Batch-Wise Tracking:** Displays batch code, quantity, expiry date, relative status, and distributor.
+- **FEFO (First Expired, First Out) Stock Out:** Dispenses inventory automatically from the batch that expires earliest.
+- **Stock In:** Adds quantities to existing or new batches with supplier details.
+- **Stock Activity Log:** Tabular audit trail recording all stock in/out movements, timestamps, quantities, and reference notes.
+
+---
+
+## ✨ Future Enhancements (Slide 8)
+1. 📷 **Barcode Scan:** Auto-detects medications from barcode numbers.
+2. 🔍 **OCR Expiry Reading:** Extracts printed expiry dates from package photos.
+3. 🔔 **Smart Reminders:** Multi-stage alerts at 60, 30, and 7 days with safe disposal tips.
+4. 📄 **PDF / Print Export:** Printable medicine schedule for doctors or caregivers (`window.print()`).
+5. ☁️ **Cloud Sync & Backup:** One-click JSON backup and restore.
+6. 🔎 **Drug-Name Lookup:** Integrated openFDA & RxNorm reference data.
+7. 🌐 **Regional Languages:** Multi-lingual interface supporting English, Tamil (தமிழ்), and Hindi (हिन्दी).
+8. 📦 **Smart Cabinet:** IoT connected domestic medicine box with door and temperature sensors.
+
+---
+
+## ⚠️ Medical Disclaimer (Slide 9)
+> **MedShelf only helps to organise medicines. Please ask a pharmacist or doctor for medical advice.**

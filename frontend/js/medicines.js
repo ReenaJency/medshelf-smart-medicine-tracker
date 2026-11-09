@@ -10,8 +10,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const user = MedShelfAPI.getUser();
   const navUserName = document.getElementById('nav-user-name');
-  if (navUserName && user) {
-    navUserName.textContent = user.fullName || 'User';
+  const userAvatar = document.querySelector('.user-avatar');
+  const displayName = (user && user.fullName) ? user.fullName : 'Reena';
+
+  if (navUserName) {
+    navUserName.textContent = displayName;
+  }
+  if (userAvatar) {
+    userAvatar.textContent = displayName.charAt(0).toUpperCase();
   }
 
   // Bind Logout Button
@@ -39,6 +45,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // 4. Load Medicines from Backend API
   await loadMedicines();
+
+  // 5. Check if navigated directly with ?action=add
+  if (urlParams.get('action') === 'add') {
+    openMedicineModal(null);
+  }
 });
 
 let currentMedicines = [];

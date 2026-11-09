@@ -19,12 +19,32 @@
         <img src="assets/favicon.svg" alt="MedShelf Logo" class="brand-logo-img" width="52" height="52">
         <h1 class="brand-title">Med<span class="accent">Shelf</span></h1>
         <p class="brand-tagline">Smart Medicine Expiry Tracker</p>
+        <div style="margin-top: 0.5rem;">
+          <span style="display: inline-flex; align-items: center; gap: 0.35rem; background: #ecfdf5; border: 1px solid #a7f3d0; color: #047857; font-size: 0.8rem; font-weight: 600; padding: 0.25rem 0.75rem; border-radius: 9999px;">
+            👩‍⚕️ Created for Reena
+          </span>
+        </div>
       </div>
 
       <!-- Auth Form Header -->
       <div class="auth-header">
-        <h2 class="auth-heading">Welcome Back</h2>
-        <p class="auth-subheading">Sign in to manage your household medicine inventory</p>
+        <h2 class="auth-heading">Sign In to MedShelf</h2>
+        <p class="auth-subheading">Manage your household medicine inventory & expiry safety</p>
+      </div>
+
+      <!-- Active Session Status Banner -->
+      <div id="logged-in-banner" style="display: none; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; text-align: center;">
+        <p style="font-size: 0.88rem; color: #065f46; margin-bottom: 0.5rem;">
+          👋 Currently signed in as <strong id="logged-in-user-name">Reena</strong>
+        </p>
+        <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center; flex-wrap: wrap;">
+          <a href="dashboard.html" class="btn-submit" style="display: inline-block; width: auto; padding: 0.45rem 1rem; font-size: 0.82rem; text-decoration: none;">
+            Continue to Dashboard &rarr;
+          </a>
+          <button type="button" id="btn-switch-account" style="background: white; border: 1px solid #cbd5e1; color: #475569; padding: 0.45rem 0.85rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer;">
+            Switch Account
+          </button>
+        </div>
       </div>
 
       <!-- Flash / Validation Alert Box -->
@@ -76,9 +96,9 @@
 
       <!-- Quick Demo Login for Reviewers -->
       <div class="demo-access-box">
-        <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.5rem;">For College Review & Fast Evaluation:</p>
-        <button type="button" id="btn-demo-login" class="btn-demo" title="Auto-fill and log into verified demo account">
-          <span>⚡</span> Try Demo Account (One-Click)
+        <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.5rem;">Quick 1-Click Access:</p>
+        <button type="button" id="btn-demo-login" class="btn-demo" title="Auto-fill and log in as Reena">
+          <span>⚡</span> Sign In as Reena (One-Click)
         </button>
       </div>
 

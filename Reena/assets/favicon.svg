@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#0d9488" />
+    </linearGradient>
+  </defs>
+  <!-- Rounded Base Shield / Box -->
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="url(#grad)" />
+  <!-- Medicine Cabinet / Shelf Shelf Lines -->
+  <path d="M12 44h40" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.8" />
+  <!-- Medical Cross in Center -->
+  <path d="M32 16v20M22 26h20" stroke="#ffffff" stroke-width="5" stroke-linecap="round" />
+  <!-- Capsule pill accent on shelf -->
+  <rect x="18" y="38" width="12" height="4" rx="2" fill="#fef08a" />
+  <rect x="34" y="38" width="12" height="4" rx="2" fill="#fbcfe8" />
+</svg>

@@ -4,19 +4,53 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // If user is already logged in, redirect away from guest auth pages
-  if (window.location.pathname.endsWith('login.html') || window.location.pathname.endsWith('register.html')) {
-    MedShelfAPI.requireGuest();
-  }
-
-  // Check URL parameters for flash messages
+  // Check URL parameters for flash messages and pre-filled email
   const urlParams = new URLSearchParams(window.location.search);
   const alertBox = document.getElementById('auth-alert');
+  const emailInput = document.getElementById('email');
 
   if (urlParams.get('registered') === '1' && alertBox) {
-    showAlert('Account created successfully! Please sign in with your credentials.', 'success');
+    showAlert('Account created successfully! Your shelf is initialized (0 items). Please sign in.', 'success');
   } else if (urlParams.get('expired') === '1' && alertBox) {
     showAlert('Your session has expired. Please sign in again.', 'error');
+  }
+
+  // Pre-fill email if passed in query string (e.g. from registration redirect)
+  if (urlParams.get('email') && emailInput) {
+    emailInput.value = urlParams.get('email');
+    const pwdInput = document.getElementById('password');
+    if (pwdInput) pwdInput.focus();
+  }
+
+  // Show status banner if an active session exists
+  const currentUser = MedShelfAPI.getUser();
+  const loggedInBanner = document.getElementById('logged-in-banner');
+  const loggedInUserName = document.getElementById('logged-in-user-name');
+
+  if (currentUser && loggedInBanner) {
+    if (loggedInUserName) {
+      loggedInUserName.textContent = currentUser.fullName || 'Reena';
+    }
+    loggedInBanner.style.display = 'block';
+
+    // If no email was pre-filled, prefill with current user's email
+    if (emailInput && !emailInput.value) {
+      emailInput.value = currentUser.email || 'reena@medshelf.com';
+    }
+  }
+
+  // Handle Switch Account / Sign Out from Login Screen
+  const btnSwitchAccount = document.getElementById('btn-switch-account');
+  if (btnSwitchAccount) {
+    btnSwitchAccount.addEventListener('click', (e) => {
+      e.preventDefault();
+      MedShelfAPI.clearSession();
+      if (loggedInBanner) loggedInBanner.style.display = 'none';
+      if (emailInput) emailInput.value = '';
+      const pwdInput = document.getElementById('password');
+      if (pwdInput) pwdInput.value = '';
+      showAlert('Signed out of previous session. Please sign in or register below.', 'info');
+    });
   }
 
   // Bind Login Form
@@ -273,8 +307,8 @@ async function handleDemoLogin() {
   const emailInput = document.getElementById('email');
   const pwdInput = document.getElementById('password');
 
-  const demoEmail = 'sarah.medshelf@example.com';
-  const demoPass = 'medshelf123';
+  const demoEmail = 'reena@medshelf.com';
+  const demoPass = 'password123';
 
   emailInput.value = demoEmail;
   pwdInput.value = demoPass;
@@ -288,17 +322,17 @@ async function handleDemoLogin() {
 
     if (data.success) {
       MedShelfAPI.setSession(data.token, data.user);
-      showAlert('Demo account authenticated! Loading your shelf...', 'success');
-      setTimeout(() => { window.location.href = 'dashboard.html'; }, 500);
+      showAlert('Welcome Reena! Loading your medicine shelf...', 'success');
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 400);
       return;
     }
   } catch (loginErr) {
-    // If demo user does not exist yet, register it automatically!
+    // If user does not exist yet, register Reena automatically!
     try {
       await MedShelfAPI.request('/auth/register', {
         method: 'POST',
         body: JSON.stringify({
-          fullName: 'Sarah Johnson (Demo)',
+          fullName: 'Reena',
           email: demoEmail,
           password: demoPass,
           confirmPassword: demoPass
@@ -313,13 +347,11 @@ async function handleDemoLogin() {
 
       if (data.success) {
         MedShelfAPI.setSession(data.token, data.user);
-        // Optionally seed demo medicines
-        await MedShelfAPI.request('/medicines/seed-demo', { method: 'POST' }).catch(() => {});
-        showAlert('Demo account created and initialized! Redirecting...', 'success');
-        setTimeout(() => { window.location.href = 'dashboard.html'; }, 500);
+        showAlert('Welcome Reena! Shelf initialized. Redirecting...', 'success');
+        setTimeout(() => { window.location.href = 'dashboard.html'; }, 400);
       }
     } catch (regErr) {
-      showAlert('Failed to auto-provision demo account: ' + regErr.message);
+      showAlert('Failed to sign in as Reena: ' + regErr.message);
     }
   }
 }

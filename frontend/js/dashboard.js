@@ -11,14 +11,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // 2. Populate User Name in Navigation & Welcome Banner
   const navUserName = document.getElementById('nav-user-name');
+  const navUserInitial = document.getElementById('nav-user-initial');
   const welcomeGreeting = document.getElementById('welcome-greeting');
   const userEmailDisplay = document.getElementById('user-email-display');
 
-  if (navUserName && user) {
-    navUserName.textContent = user.fullName || 'User';
+  const displayName = (user && user.fullName) ? user.fullName : 'Reena';
+
+  if (navUserName) {
+    navUserName.textContent = displayName;
   }
-  if (welcomeGreeting && user) {
-    welcomeGreeting.textContent = `Welcome back, ${user.fullName || 'Friend'}!`;
+  if (navUserInitial) {
+    navUserInitial.textContent = displayName.charAt(0).toUpperCase();
+  }
+  if (welcomeGreeting) {
+    welcomeGreeting.textContent = `Welcome back, ${displayName}!`;
   }
   if (userEmailDisplay && user) {
     userEmailDisplay.textContent = user.email || '';

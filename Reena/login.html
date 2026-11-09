@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sign in to MedShelf - Reena's Smart Medicine Expiry Tracker for Home Use.">
+  <title>Reena's Portal | MedShelf Smart Medicine Tracker</title>
+  
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+
+  <main class="auth-container">
+    <div class="auth-card">
+      
+      <!-- Brand Identity -->
+      <div class="auth-brand">
+        <img src="assets/favicon.svg" alt="MedShelf Logo" class="brand-logo-img" width="56" height="56">
+        <h1 class="brand-title">Med<span class="accent">Shelf</span></h1>
+        <p class="brand-tagline">Smart Medicine Expiry Tracker</p>
+        <div style="margin-top: 0.6rem;">
+          <span style="display: inline-flex; align-items: center; gap: 0.4rem; background: #ecfdf5; border: 1px solid #a7f3d0; color: #047857; font-size: 0.85rem; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: 9999px;">
+            👩‍⚕️ Reena's Medicine Portal
+          </span>
+        </div>
+      </div>
+
+      <!-- Auth Form Header -->
+      <div class="auth-header">
+        <h2 class="auth-heading">Welcome, Reena!</h2>
+        <p class="auth-subheading">Sign in to manage your household medicine inventory & expiry safety</p>
+      </div>
+
+      <!-- Active Session Status Banner -->
+      <div id="logged-in-banner" style="display: none; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; text-align: center;">
+        <p style="font-size: 0.88rem; color: #065f46; margin-bottom: 0.5rem;">
+          👋 Currently signed in as <strong id="logged-in-user-name">Reena</strong>
+        </p>
+        <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center; flex-wrap: wrap;">
+          <a href="dashboard.html" class="btn-submit" style="display: inline-block; width: auto; padding: 0.45rem 1rem; font-size: 0.82rem; text-decoration: none;">
+            Continue to Dashboard &rarr;
+          </a>
+          <button type="button" id="btn-switch-account" style="background: white; border: 1px solid #cbd5e1; color: #475569; padding: 0.45rem 0.85rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer;">
+            Switch Account
+          </button>
+        </div>
+      </div>
+
+      <!-- Flash / Validation Alert Box -->
+      <div id="auth-alert" class="alert-box" role="alert"></div>
+
+      <!-- Quick 1-Click Access for Reena -->
+      <div class="demo-access-box" style="margin-bottom: 1.5rem; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; padding: 1rem;">
+        <p style="font-size: 0.85rem; color: #166534; font-weight: 700; margin-bottom: 0.6rem;">
+          ⚡ Fast 1-Click Access for Reena:
+        </p>
+        <button type="button" id="btn-demo-login" class="btn-demo" style="width: 100%; font-size: 0.95rem; font-weight: 700; background: #059669; color: white; border: none; padding: 0.75rem; border-radius: 8px; cursor: pointer;" title="Instant Sign In as Reena">
+          <span>👩‍⚕️</span> Sign In as Reena (One-Click)
+        </button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" novalidate>
+        <div style="text-align: center; margin-bottom: 1rem; position: relative;">
+          <span style="background: white; padding: 0 0.75rem; font-size: 0.78rem; color: #94a3b8; font-weight: 600; text-transform: uppercase;">
+            Or sign in with email
+          </span>
+        </div>
+        
+        <!-- Email Field -->
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address</label>
+          <div class="form-control-wrap">
+            <input 
+              type="email" 
+              id="email" 
+              class="form-input" 
+              value="reena@medshelf.com"
+              placeholder="e.g. reena@medshelf.com" 
+              required 
+              autocomplete="email">
+          </div>
+          <span class="field-error" id="email-error"></span>
+        </div>
+
+        <!-- Password Field -->
+        <div class="form-group">
+          <div class="form-label">
+            <span>Password</span>
+            <a href="#" id="link-forgot-password" class="auth-link" style="font-size: 0.78rem;">Forgot password?</a>
+          </div>
+          <div class="form-control-wrap">
+            <input 
+              type="password" 
+              id="password" 
+              class="form-input" 
+              value="password123"
+              placeholder="Enter your password" 
+              required 
+              autocomplete="current-password">
+            <button type="button" class="btn-toggle-pwd" data-target="password" aria-label="Toggle password visibility">👁️</button>
+          </div>
+          <span class="field-error" id="password-error"></span>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="btn-submit-login" class="btn-submit">
+          <span>Sign In</span>
+        </button>
+
+      </form>
+
+      <!-- Footer Registration Link -->
+      <div class="auth-footer">
+        <p>Want to start a new private shelf? <a href="register.html" class="auth-link">Register New Account (Starts at 0)</a></p>
+        <p style="margin-top: 0.6rem; font-size: 0.8rem;">
+          <a href="../login.html" class="auth-link" style="color: #64748b;">🏠 Go to Main MedShelf Home</a>
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Forgot Password Modal -->
+  <div class="modal-overlay" id="forgot-modal" role="dialog" aria-modal="true" aria-labelledby="forgot-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="forgot-title" style="font-size: 1.15rem; font-weight: 700;">Reset Your Password</h3>
+        <button class="modal-close-btn" data-close-modal aria-label="Close dialog">&times;</button>
+      </div>
+      <form id="forgot-form">
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Enter your registered email address and choose a new password.
+        </p>
+        <div class="form-group">
+          <label for="reset-email" class="form-label">Email Address</label>
+          <input type="email" id="reset-email" class="form-input" placeholder="Registered email" required>
+        </div>
+        <div class="form-group">
+          <label for="reset-password" class="form-label">New Password</label>
+          <input type="password" id="reset-password" class="form-input" placeholder="Minimum 6 characters" required>
+        </div>
+        <div class="form-group">
+          <label for="reset-confirm" class="form-label">Confirm New Password</label>
+          <input type="password" id="reset-confirm" class="form-input" placeholder="Repeat new password" required>
+        </div>
+        <span id="reset-alert" style="display: block; font-size: 0.82rem; color: var(--danger-red); margin-bottom: 0.75rem;"></span>
+        <button type="submit" class="btn-submit">Reset Password</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

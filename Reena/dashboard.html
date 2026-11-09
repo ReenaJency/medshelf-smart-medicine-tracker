@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MedShelf Dashboard - Real-time household medicine stock and expiry tracking.">
+  <title>Dashboard | MedShelf Smart Medicine Tracker</title>
+  
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <!-- Safety & Medical Disclaimer Banner -->
+  <aside class="disclaimer-banner" role="complementary" aria-label="Medical Disclaimer">
+    <div class="container disclaimer-content">
+      <span aria-hidden="true">⚠️</span>
+      <span>
+        <strong>Medical Disclaimer:</strong> MedShelf is an inventory and expiry date tracking tool for home use. It does <strong>not</strong> provide medical advice or dosage recommendations. Always consult a certified healthcare professional.
+      </span>
+    </div>
+  </aside>
+
+  <!-- Navigation & Application Header -->
+  <header class="app-header">
+    <div class="container nav-wrapper">
+      
+      <!-- Brand Group -->
+      <a href="dashboard.html" class="brand-group" aria-label="MedShelf Dashboard">
+        <img src="assets/favicon.svg" alt="MedShelf Logo" class="brand-logo" width="40" height="40">
+        <div class="brand-text">
+          <h1>Med<span class="brand-highlight">Shelf</span></h1>
+          <span class="brand-subtitle">Smart Medicine Tracker</span>
+        </div>
+      </a>
+
+      <!-- Main Navigation Menu -->
+      <nav aria-label="Main Navigation">
+        <ul class="main-nav">
+          <li><a href="dashboard.html" class="nav-link active"><span>📊</span> Dashboard</a></li>
+          <li><a href="medicines.html" class="nav-link"><span>💊</span> My Medicines</a></li>
+          <li><a href="medicines.html?status=EXPIRING_SOON" class="nav-link"><span>⏳</span> Expiring Soon</a></li>
+          <li><a href="medicines.html?status=EXPIRED" class="nav-link"><span>❌</span> Expired</a></li>
+          <li><a href="medicines.html?status=LOW_STOCK" class="nav-link"><span>⚠️</span> Low Stock</a></li>
+        </ul>
+      </nav>
+
+      <!-- User Actions & Profile -->
+      <div class="header-actions">
+        <!-- Reminders Bell -->
+        <button id="btn-open-reminders" class="btn btn-outline btn-icon" title="View Expiry Reminders" aria-label="Reminders">
+          <span>🔔</span>
+          <span id="reminders-badge" class="notification-badge" style="display: none;">0</span>
+        </button>
+
+        <!-- Logged-in User Profile Badge -->
+        <div class="user-badge" id="user-profile-badge" title="Logged in user profile">
+          <span class="user-avatar" id="nav-user-initial">👤</span>
+          <span id="nav-user-name">Loading...</span>
+        </div>
+
+        <!-- Add Medicine Button -->
+        <a href="medicines.html?action=add" class="btn btn-primary btn-sm">
+          <span>+ Add Medicine</span>
+        </a>
+
+        <!-- Logout Button -->
+        <button id="btn-logout" class="btn btn-outline btn-sm" title="Sign out of your account">
+          <span>🚪 Logout</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Dashboard Content -->
+  <main class="main-content">
+    <div class="container">
+      
+      <!-- Welcome Banner -->
+      <section class="welcome-banner" aria-label="User Welcome">
+        <div class="welcome-text">
+          <h2 id="welcome-greeting">Welcome back!</h2>
+          <p>Today is <strong id="current-date-display"></strong> &bull; Monitoring your household medicine safety.</p>
+        </div>
+        <div class="welcome-actions">
+          <a href="medicines.html" class="btn btn-sm">View All Medicines</a>
+          <button id="btn-seed-demo" class="btn btn-sm" title="Load sample demo data into your account">✨ Load Demo Medicines</button>
+        </div>
+      </section>
+
+      <!-- Urgent Alert Banner (Conditionally Shown) -->
+      <div id="urgent-alert-banner" class="urgent-banner" style="display: none;">
+        <div class="urgent-banner-content">
+          <span class="urgent-icon">⚠️</span>
+          <div class="urgent-text">
+            <strong>Stock Alert: Immediate Attention Required</strong>
+            <p id="urgent-banner-text">You have medicines in your home inventory that are expired or expiring soon.</p>
+          </div>
+        </div>
+        <a href="medicines.html?status=EXPIRED" class="btn btn-sm btn-danger">Inspect Expired Medicines</a>
+      </div>
+
+      <!-- Section: Real-Time Dashboard KPI Cards -->
+      <section aria-label="Dashboard Statistics Overview">
+        <div style="margin-bottom: 1rem;">
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main);">Inventory Status Overview</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">Real-time counters calculated from your personal database records</p>
+        </div>
+
+        <div class="dashboard-grid">
+          
+          <!-- Card 1: Total Medicines -->
+          <div class="stat-card stat-total" id="card-stat-total" role="button" tabindex="0" title="Click to view all medicines">
+            <div class="stat-info">
+              <span class="stat-label">Total Stock</span>
+              <span class="stat-number" id="stat-total">0</span>
+              <span class="stat-hint">All items in your shelf</span>
+            </div>
+            <div class="stat-icon icon-total">📦</div>
+          </div>
+
+          <!-- Card 2: Safe Medicines -->
+          <div class="stat-card stat-safe" id="card-stat-safe" role="button" tabindex="0" title="Click to view safe medicines">
+            <div class="stat-info">
+              <span class="stat-label">Safe to Use</span>
+              <span class="stat-number" id="stat-safe">0</span>
+              <span class="stat-hint">&gt; 30 days remaining</span>
+            </div>
+            <div class="stat-icon icon-safe">✅</div>
+          </div>
+
+          <!-- Card 3: Expiring Soon -->
+          <div class="stat-card stat-expiring" id="card-stat-expiring" role="button" tabindex="0" title="Click to view medicines expiring within 30 days">
+            <div class="stat-info">
+              <span class="stat-label">Expiring Soon</span>
+              <span class="stat-number" id="stat-expiring">0</span>
+              <span class="stat-hint">Within 30 days</span>
+            </div>
+            <div class="stat-icon icon-expiring">⏳</div>
+          </div>
+
+          <!-- Card 4: Expired Medicines -->
+          <div class="stat-card stat-expired" id="card-stat-expired" role="button" tabindex="0" title="Click to view expired medicines">
+            <div class="stat-info">
+              <span class="stat-label">Expired</span>
+              <span class="stat-number" id="stat-expired">0</span>
+              <span class="stat-hint">Do not consume</span>
+            </div>
+            <div class="stat-icon icon-expired">❌</div>
+          </div>
+
+          <!-- Card 5: Low Stock -->
+          <div class="stat-card stat-lowstock" id="card-stat-lowstock" role="button" tabindex="0" title="Click to view low stock items">
+            <div class="stat-info">
+              <span class="stat-label">Low Stock</span>
+              <span class="stat-number" id="stat-lowstock">0</span>
+              <span class="stat-hint">Restock needed (&le; 2)</span>
+            </div>
+            <div class="stat-icon icon-lowstock">⚠️</div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Empty State for Newly Registered Users -->
+      <section id="dashboard-empty-state" class="empty-state" style="display: none; margin-top: 1.5rem;">
+        <div class="empty-state-graphic">💊</div>
+        <h3>Your Medicine Shelf is Currently Empty</h3>
+        <p>You haven't added any medicines yet. All your dashboard counters are at zero. Start organizing your home medicines or load demo data to explore.</p>
+        <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+          <a href="medicines.html?action=add" class="btn btn-primary">+ Add First Medicine</a>
+          <button id="btn-seed-empty-demo" class="btn btn-outline" onclick="document.getElementById('btn-seed-demo').click()">Load Sample Medicines</button>
+        </div>
+      </section>
+
+      <!-- Quick Action Cards Section -->
+      <section style="margin-top: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+          
+          <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.5rem;">
+            <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">🔍</div>
+            <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.35rem;">Manage Medicine Stock</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+              Search, filter by family member or category, and adjust remaining quantities with one click.
+            </p>
+            <a href="medicines.html" class="btn btn-sm btn-outline">Open My Medicines &rarr;</a>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.5rem;">
+            <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">👥</div>
+            <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.35rem;">Family Profiles</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+              Keep medicines organized for each person in your home to prevent dangerous cross-medication.
+            </p>
+            <a href="medicines.html" class="btn btn-sm btn-outline">View by Family Member &rarr;</a>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.5rem;">
+            <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">🔒</div>
+            <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.35rem;">Your Account & Security</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+              Logged in as <strong id="user-email-display"></strong>. Your medicine records are completely isolated and private.
+            </p>
+            <button class="btn btn-sm btn-outline" onclick="alert('Account Details:\nName: ' + MedShelfAPI.getUser().fullName + '\nEmail: ' + MedShelfAPI.getUser().email)">View Profile Info</button>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="container footer-wrapper">
+      <div>
+        <p><strong>MedShelf</strong> – Smart Medicine Expiry Tracker for Home Use</p>
+        <p style="font-size: 0.78rem;">Full-Stack Node.js, Express & MySQL Architecture &bull; College Mini-Project</p>
+      </div>
+      <div>
+        <a href="dashboard.html" style="color: var(--primary); text-decoration: none; margin-right: 1rem;">Dashboard</a>
+        <a href="medicines.html" style="color: var(--primary); text-decoration: none; margin-right: 1rem;">My Medicines</a>
+        <a href="#" id="footer-logout-link" onclick="document.getElementById('btn-logout').click()" style="color: var(--danger); text-decoration: none;">Sign Out</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
